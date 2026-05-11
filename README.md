@@ -1,0 +1,129 @@
+\# Medical Insight Explorer Agent
+
+
+
+Conversational AI analytics agent for exploring cleaned Medicare healthcare claims data using validated Parquet outputs from an upstream healthcare data-cleaning pipeline.
+
+
+
+\## Project Overview
+
+
+
+This project builds an AI-assisted analytics layer over cleaned healthcare claims data. The agent is designed to answer natural-language analytical questions, compute deterministic tabular summaries, generate visualizations, and explain healthcare utilization patterns.
+
+
+
+\## Connection to Upstream Data Cleaning Project
+
+
+
+This repository consumes cleaned Parquet outputs produced by the companion repository:
+
+
+
+\*\*Healthcare-Data-Cleaning\*\*
+
+
+
+The upstream project performs data loading, cleaning, validation, feature engineering, and Parquet export. This project starts from those validated Parquet files instead of repeating raw CSV cleaning.
+
+
+
+\## Data Inputs
+
+
+
+Expected local input files:
+
+
+
+```text
+
+data/processed/train\_beneficiary\_clean.parquet
+
+data/processed/test\_beneficiary\_clean.parquet
+
+data/processed/train\_inpatient\_clean.parquet
+
+data/processed/test\_inpatient\_clean.parquet
+
+data/processed/train\_outpatient\_clean.parquet
+
+data/processed/test\_outpatient\_clean.parquet
+
+data/processed/train\_labels\_clean.parquet
+
+data/processed/test\_labels\_clean.parquet
+
+```
+
+Full processed data files are excluded from GitHub and must be generated locally from the upstream project.
+
+
+\## Planned Features
+
+Load cleaned relational Parquet tables
+Join beneficiary, inpatient, outpatient, and provider-label data when needed
+Answer analytical questions over healthcare claims data
+Generate summary statistics and visualizations
+Provide LLM-assisted interpretation of computed results
+Deploy an interactive Gradio interface on Hugging Face Spaces
+
+\## Example Questions
+Show the shape of all loaded tables.
+Summarize inpatient claims.
+What is the average beneficiary age?
+How many unique inpatient beneficiaries exist?
+Compare average inpatient reimbursement by chronic condition.
+Show the distribution of inpatient claim reimbursement.
+
+
+\## Project Architecture
+
+```text
+Healthcare-Data-Cleaning
+        ↓
+Cleaned validated Parquet tables
+        ↓
+Medical Insight Explorer Agent
+        ↓
+Relational table loader
+        ↓
+Pandas analytics engine
+        ↓
+LLM interpretation layer
+        ↓
+Gradio / Hugging Face interface
+
+```
+
+
+\## Repository Structure
+
+```text
+Medical-Insight-Explorer-Agent/
+├── agent/
+├── data/
+│   ├── processed/
+│   └── sample/
+├── notebooks/
+├── docs/
+├── images/
+├── demo/
+├── app.py
+├── requirements.txt
+├── runtime.txt
+└── README.md
+
+```
+
+Data Governance
+
+Raw and full processed healthcare datasets are not committed to GitHub. The project uses local Parquet files generated from the upstream cleaning pipeline. Small sample files may be added later for demo purposes.
+
+Status
+
+Project initialized. Core implementation will be developed through separate pull requests.
+
+
