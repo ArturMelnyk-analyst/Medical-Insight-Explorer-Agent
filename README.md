@@ -86,7 +86,35 @@ Current supported analytics include:
 - Claim distribution by beneficiary state
 
 This engine forms the deterministic computation layer that future LLM components will use for grounded responses.
+
+
+#### PR #3 — Visualization Tools
+
+The project now includes reusable Plotly-based visualization utilities that transform deterministic healthcare analytics outputs into interactive charts.
+
+Current supported visualizations include:
+
+- Vertical bar charts
+- Horizontal bar charts
+- Histograms
+- Box plots
+- Input column validation before plotting
+
+Example visual outputs currently include:
+
+- Top providers by claim count
+- Inpatient reimbursement distributions
+- Geographic claim distributions
+- Chronic-condition reimbursement comparisons
+
+These visualizations form the presentation layer that future Gradio and LLM components will use to return charts alongside grounded analytical responses.
+
+Example outputs are stored under:
+
+```text
+images/demo/
 ```
+````markdown
 
 \## Planned Features
 
