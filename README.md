@@ -109,6 +109,20 @@ Example visual outputs currently include:
 
 These visualizations form the presentation layer that future Gradio and LLM components will use to return charts alongside grounded analytical responses.
 
+#### PR #4 — Grounded LLM Response Layer
+
+The project now includes a first response-generation layer that routes natural-language questions to controlled analytics functions.
+
+Current capabilities include:
+
+- Rule-based query routing
+- Deterministic analytics execution before explanation
+- Safe fallback responses for unsupported questions
+- Optional LLM-based explanation when an API key is configured
+- Prompt templates that restrict the LLM to explaining computed results
+
+This layer prevents the LLM from directly manipulating healthcare dataframes and keeps numerical answers grounded in pandas-based analytics.
+
 Example outputs are stored under:
 
 ```text
