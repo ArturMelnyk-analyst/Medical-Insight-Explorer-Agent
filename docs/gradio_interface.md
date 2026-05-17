@@ -123,6 +123,24 @@ diabetes reimbursement comparison
 For text-only questions, the app displays a placeholder chart explaining that no visualization was generated.
 
 
+\## Bilingual Interface
+
+The Gradio interface supports English and German user-facing text.
+
+Current bilingual elements include:
+
+- language selector
+- example prompts
+- response summaries
+- method notes
+- safety notes
+- visualization placeholder messages
+
+The backend analytics routes remain deterministic and language-independent. German prompts are normalized into supported analytics routes before computation.
+
+This design keeps the analytics engine stable while improving usability for German-speaking reviewers.
+
+
 
 \## Data Source
 
