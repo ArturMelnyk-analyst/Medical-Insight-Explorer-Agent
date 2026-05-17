@@ -140,6 +140,22 @@ Local processed-data loading with fallback support for future sample-data deploy
 
 This interface makes the Medical Insight Explorer Agent directly usable as an interactive portfolio application.
 
+#### PR #6 — Bilingual UX/UI Polish
+
+The project now includes a bilingual English/German Gradio user experience.
+
+Current UX improvements include:
+
+- English/German language selector
+- German-safe analytics wording
+- bilingual example prompts
+- cleaner response formatting
+- human-readable summaries instead of raw dictionary-style explanations
+- localized method and safety notes
+- improved placeholder messaging for text-only analytical questions
+
+This polish makes the app more recruiter-ready for both English-speaking and German-speaking audiences.
+
 \## Run the App Locally
 python app.py
 
