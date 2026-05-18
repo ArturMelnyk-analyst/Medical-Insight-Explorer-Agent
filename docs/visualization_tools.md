@@ -46,36 +46,43 @@ Future Gradio Interface
 
 This architecture ensures:
 
-deterministic calculations
-reusable chart generation
-reduced hallucination risk
-separation of responsibilities
-future compatibility with LLM orchestration
+- deterministic calculations
+- reusable chart generation
+- reduced hallucination risk
+- separation of responsibilities
+- future compatibility with LLM orchestration
 
 ## Current Visualization Examples
 
 The validation notebook currently demonstrates:
 
-Provider Analytics
-Top 10 inpatient providers by claim count
-Top 10 outpatient providers by claim count
-Geographic Analytics
-Top states by inpatient claim count
-Financial Analytics
-Distribution of inpatient reimbursement amounts
-Average reimbursement by chronic-condition indicators
+### Provider Analytics
+
+- Top 10 inpatient providers by claim count
+- Top 10 outpatient providers by claim count
+
+### Geographic Analytics
+
+- Top states by inpatient claim count
+
+### Financial Analytics
+
+- Distribution of inpatient reimbursement amounts
+- Average reimbursement by chronic-condition indicators
 
 ## Demo Outputs
 
 Example generated visualizations are stored under:
 
+```text
 images/demo/
+```
 
 Current screenshots include:
 
-top_10_inpatient_providers_by_claim_count.png
-inpatient_reimbursement_distribution.png
-average_inpatient_reimbursement_by_diabetes_indicator.png
+- `top_10_inpatient_providers_by_claim_count.png`
+- `inpatient_reimbursement_distribution.png`
+- `average_inpatient_reimbursement_by_diabetes_indicator.png`
 
 These examples demonstrate successful conversion of analytics-engine outputs into visual summaries.
 
@@ -83,11 +90,14 @@ These examples demonstrate successful conversion of analytics-engine outputs int
 
 Local Jupyter rendering uses:
 
+```python
 import plotly.io as pio
 
 pio.renderers.default = "browser"
+```
 
 This setting improves local visualization reliability.
+
 Future Gradio deployment will render Plotly figures directly within the application interface.
 
 ## Scope
