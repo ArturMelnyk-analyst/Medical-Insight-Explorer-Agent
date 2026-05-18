@@ -1,8 +1,8 @@
-\# Analytics Engine
+# Analytics Engine
 
 
 
-\## Purpose
+## Purpose
 
 
 
@@ -14,33 +14,31 @@ This layer computes deterministic healthcare metrics directly from cleaned relat
 
 
 
-\## Current Functions
-
+## Current Functions
 
 
 | Function | Purpose |
 
 |---|---|
 
-| `get\_table\_shapes()` | Returns row and column counts for all loaded tables |
+| `get_table_shapes()` | Returns row and column counts for all loaded tables |
 
-| `inpatient\_claim\_summary()` | Summarizes inpatient claim counts, beneficiaries, providers, and reimbursement |
+| `inpatient_claim_summary()` | Summarizes inpatient claim counts, beneficiaries, providers, and reimbursement |
 
-| `outpatient\_claim\_summary()` | Summarizes outpatient claim counts, beneficiaries, providers, and reimbursement |
+| `outpatient_claim_summary()` | Summarizes outpatient claim counts, beneficiaries, providers, and reimbursement |
 
-| `beneficiary\_age\_summary()` | Summarizes beneficiary age statistics |
+| `beneficiary_age_summary()` | Summarizes beneficiary age statistics |
 
-| `top\_providers\_by\_claim\_count()` | Returns top providers by claim volume |
+| `top_providers_by_claim_count()` | Returns top providers by claim volume |
 
-| `average\_inpatient\_cost\_by\_chronic\_condition()` | Calculates inpatient reimbursement by chronic-condition flag |
+| `average_inpatient_cost_by_chronic_condition()` | Calculates inpatient reimbursement by chronic-condition flag |
 
-| `claim\_distribution\_by\_state()` | Counts claims by beneficiary state |
+| `claim_distribution_by_state()` | Counts claims by beneficiary state |
 
-| `available\_beneficiary\_columns()` | Lists beneficiary columns available for analytics |
+| `available_beneficiary_columns()` | Lists beneficiary columns available for analytics |
 
 
-
-\## Design Principle
+## Design Principle
 
 
 
@@ -53,32 +51,30 @@ The intended system flow is:
 
 
 ```text
-
 User question
-
-&#x20;       ↓
-
+       ↓
 Query routing
-
-&#x20;       ↓
-
+       ↓
 Analytics engine function
-
-&#x20;       ↓
-
+      ↓
 Computed pandas result
-
-&#x20;       ↓
-
+      ↓
 LLM explanation
-
 ```
 
 
+## Scope
 
-\## Scope
+This module does not perform:
 
+- diagnosis
+- clinical decision-making
+- medical recommendations
 
+It is designed for:
 
-This module does not perform diagnosis, clinical decision-making, or medical recommendations. It is designed for claims analytics, utilization analysis, cost summaries, and portfolio demonstration.
+- claims analytics
+- utilization analysis
+- reimbursement summaries
+- portfolio demonstration
 

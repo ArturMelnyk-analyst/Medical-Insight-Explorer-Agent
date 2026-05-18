@@ -1,57 +1,31 @@
-\# LLM Response Layer
+# LLM Response Layer
 
-
-
-\## Purpose
-
-
+## Purpose
 
 The LLM response layer converts user questions into grounded analytical responses.
 
-
-
 This layer does not allow the LLM to freely manipulate healthcare dataframes. Instead, it routes supported questions to deterministic analytics functions and then explains the computed result.
 
-
-
-\## Design Principle
-
-
+## Design Principle
 
 The project follows this pattern:
 
-
-
 ```text
-
 User question
-
-&#x20;       ↓
-
+       ↓
 Rule-based query router
-
-&#x20;       ↓
-
+       ↓
 Deterministic pandas analytics function
-
-&#x20;       ↓
-
+       ↓
 Computed result
-
-&#x20;       ↓
-
+       ↓
 Optional LLM explanation
-
 ```
-
-
 
 The LLM is used for interpretation, not calculation.
 
 
-
-\##Components
-
+## Components
 
 
 | Component             | Purpose                                                       |
@@ -62,103 +36,72 @@ The LLM is used for interpretation, not calculation.
 
 | `ResponseGenerator`   | Runs the selected analytics function and generates a response |
 
-| `prompt\_templates.py` | Stores system and explanation prompts for optional LLM usage  |
+| `prompt_templates.py` | Stores system and explanation prompts for optional LLM usage  |
 
+
+## Supported Routes
 
 
 | Route                        | Trigger Examples          | Analytics Function                                                    |
 
 | ---------------------------- | ------------------------- | --------------------------------------------------------------------- |
 
-| `table\_shapes`               | "shape", "tables"         | `get\_table\_shapes()`                                                  |
+| `table_shapes`               | "shape", "tables"         | `get_table_shapes()`                                                  |
 
-| `inpatient\_summary`          | "inpatient summary"       | `inpatient\_claim\_summary()`                                           |
+| `inpatient_summary`          | "inpatient summary"       | `inpatient_claim_summary()`                                           |
 
-| `outpatient\_summary`         | "outpatient summary"      | `outpatient\_claim\_summary()`                                          |
+| `outpatient_summary`         | "outpatient summary"      | `outpatient_claim_summary()`                                          |
 
-| `age\_summary`                | "age"                     | `beneficiary\_age\_summary()`                                           |
+| `age_summary`                | "age"                     | `beneficiary_age_summary()`                                           |
 
-| `top\_inpatient\_providers`    | "top provider"            | `top\_providers\_by\_claim\_count("inpatient")`                           |
+| `top_inpatient_providers`    | "top provider"            | `top_providers_by_claim_count("inpatient")`                           |
 
-| `top\_outpatient\_providers`   | "top outpatient provider" | `top\_providers\_by\_claim\_count("outpatient")`                          |
+| `top_outpatient_providers`   | "top outpatient provider" | `top_providers_by_claim_count("outpatient")`                          |
 
-| `inpatient\_claims\_by\_state`  | "state"                   | `claim\_distribution\_by\_state("inpatient")`                            |
+| `inpatient_claims_by_state`  | "state"                   | `claim_distribution_by_state("inpatient")`                            |
 
-| `outpatient\_claims\_by\_state` | "outpatient state"        | `claim\_distribution\_by\_state("outpatient")`                           |
+| `outpatient_claims_by_state` | "outpatient state"        | `claim_distribution_by_state("outpatient")`                           |
 
-| `diabetes\_cost\_summary`      | "diabetes", "diabetic"    | `average\_inpatient\_cost\_by\_chronic\_condition("ChronicCond\_Diabetes")` |
+| `diabetes_cost_summary`      | "diabetes", "diabetic"    | `average_inpatient_cost_by_chronic_condition("ChronicCond_Diabetes")` |
 
 | `fallback`                   | unsupported questions     | Safe unsupported-query message                                        |
 
 
-
-\##Fallback Behavior
-
-
+## Fallback Behavior
 
 The response layer works without an API key.
 
+When `use_llm=False`, the system returns deterministic fallback explanations based on computed results.
 
+When `use_llm=True` and an API key is configured, the LLM receives:
 
-When use\_llm=False, the system returns deterministic fallback explanations based on computed results.
+- the user question
 
+- selected route
 
-
-When use\_llm=True and an API key is configured, the LLM receives:
-
-
-
-the user question
-
-selected route
-
-computed result
-
-
+- computed result
 
 It does not receive direct dataframe access.
 
-
-
-\##Safety Boundaries
-
-
+## Safety Boundaries
 
 The response layer is designed for healthcare claims analytics only.
 
-
-
 It does not:
 
+- diagnose patients
+- provide treatment recommendations
+- make clinical decisions
+- invent unsupported statistics
+- claim causality without evidence
 
-
-diagnose patients
-
-provide treatment recommendations
-
-make clinical decisions
-
-invent unsupported statistics
-
-claim causality without evidence
-
-
-
-\##Future Work
-
-
+## Future Work
 
 Later PRs will connect this response layer to:
 
-
-
-visualization routing
-
-Gradio interface
-
-Hugging Face deployment
-
-richer prompt templates
-
-expanded analytics tools
+- visualization routing
+- Gradio interface
+- Hugging Face deployment
+- richer prompt templates
+- expanded analytics tools
 
