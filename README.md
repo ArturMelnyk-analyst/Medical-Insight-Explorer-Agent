@@ -198,6 +198,19 @@ German interface:
 
 ![German Demo](images/demo/gradio_app_german.png)
 
+## Hugging Face Demo
+
+A lightweight live demo is available on Hugging Face Spaces:
+
+[Medical Insight Explorer Agent — Hugging Face Demo](https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent)
+
+The deployed version uses sample Parquet files from `data/sample/` instead of the full local processed dataset.
+
+The app preserves the same deterministic analytics workflow, bilingual English/German interface, and healthcare claims-only safety boundaries.
+
+Deployment details are documented in:
+
+Deployment Guide
 
 ## Documentation
 
