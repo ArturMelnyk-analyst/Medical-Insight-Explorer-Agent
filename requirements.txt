@@ -8,3 +8,6 @@ openai==1.51.2
 huggingface_hub==0.25.2
 fastapi==0.112.2
 starlette==0.38.6
+langgraph==0.5.3
+langchain==0.3.27
+langchain-core==0.3.74
