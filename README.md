@@ -67,6 +67,8 @@ Visualization tools
         ↓
 ResponseGenerator
         ↓
+LangGraph workflow
+        ↓
 Bilingual Gradio interface
 ```
 
@@ -111,6 +113,8 @@ Current project features include:
 - localized method and safety notes
 - placeholder visualization messaging for text-only questions
 - local processed-data loading with future sample-data fallback
+- LangGraph-based workflow orchestration
+- Hugging Face deployment with sample-data fallback
 
 ## Example Questions
 
@@ -210,7 +214,7 @@ The app preserves the same deterministic analytics workflow, bilingual English/G
 
 Deployment details are documented in:
 
-Deployment Guide
+- [Deployment Guide](docs/deployment.md)
 
 ## Documentation
 
@@ -223,6 +227,7 @@ Deployment Guide
 - [Visualization Tools](docs/visualization_tools.md)
 - [LLM Response Layer](docs/llm_response_layer.md)
 - [Gradio Interface](docs/gradio_interface.md)
+- [LangGraph Orchestration](docs/langgraph_orchestration.md)
 
 ## Repository Structure
 
@@ -233,6 +238,7 @@ Medical-Insight-Explorer-Agent/
 │   ├── analytics_engine.py
 │   ├── visualization_tools.py
 │   ├── response_generator.py
+│   ├── graph_workflow.py
 │   └── prompt_templates.py
 ├── data/
 │   ├── processed/
@@ -274,14 +280,13 @@ The current version supports controlled analytics routes only. Unsupported quest
 
 Planned improvements include:
 
-- package sample data for lightweight demo deployment
-- deploy interactive app to Hugging Face Spaces
-- expand chart routing
-- add LangGraph orchestration
-- add unit tests
+- add LangSmith tracing for workflow observability
+- conditional graph routing
+- richer chart routing
+- unit tests
+- optional database-backed analytics layer
 - improve optional LLM response mode
 - add richer user-facing documentation
-- add dynamic example selection by language
 
 ## Status
 
@@ -293,3 +298,5 @@ The project currently includes:
 - grounded response layer
 - bilingual English/German Gradio interface
 - documentation and demo screenshots
+- LangGraph orchestration workflow
+- Hugging Face deployment support

@@ -47,6 +47,8 @@ Visualization tools
        ↓
 ResponseGenerator
        ↓
+LangGraph workflow
+       ↓
 Gradio interface
 ```
 
@@ -93,21 +95,14 @@ This repository starts from the cleaned Parquet outputs and focuses on:
 
 
 | Component           | File                           | Responsibility                                          |
-
-| ------------------- | ------------------------------ | ------------------------------------------------------- |
-
+|---|---|---|
 | Data loader         | `agent/data_loader.py`         | Loads required cleaned Parquet tables                   |
-
 | Analytics engine    | `agent/analytics_engine.py`    | Computes deterministic healthcare metrics               |
-
 | Visualization tools | `agent/visualization_tools.py` | Generates Plotly charts                                 |
-
 | Response layer      | `agent/response_generator.py`  | Routes questions and formats grounded responses         |
-
+| Graph workflow      | `agent/graph_workflow.py`      | Coordinates LangGraph execution workflow                |
 | Prompt templates    | `agent/prompt_templates.py`    | Defines safe explanation prompts for optional LLM usage |
-
 | Gradio app          | `app.py`                       | Provides bilingual interactive user interface           |
-
 
 
 
@@ -209,7 +204,7 @@ Supported visual types include:
 
 
 
-The response layer uses a rule-based router.
+The response layer uses rule-based routing coordinated through LangGraph orchestration.
 
 
 
@@ -233,6 +228,29 @@ Return text response and optional chart
 
 The LLM does not directly manipulate dataframes.
 
+
+## LangGraph Orchestration Layer
+
+
+The LangGraph orchestration layer makes the workflow explicit as a graph.
+
+It organizes the following steps:
+
+```text
+normalize_question
+       ↓
+route_question
+       ↓
+run_analytics
+       ↓
+generate_response
+       ↓
+generate_chart
+```
+
+The graph does not replace deterministic analytics.
+
+It coordinates the existing safe computation and response-generation pipeline.
 
 
 
@@ -290,11 +308,11 @@ Possible future improvements include:
 
 
 
-- sample-data deployment package
-- Hugging Face Spaces deployment
-- LangGraph orchestration
+- LangSmith tracing
+- conditional graph routing
+- expanded multilingual support
 - richer chart routing
 - expanded analytics tools
-- test suite
+- automated test suite
 - optional database-backed query layer
 
