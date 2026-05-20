@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from dotenv import load_dotenv
 
@@ -29,7 +29,11 @@ class QueryRouter:
         if "age" in question_lower:
             return "age_summary"
 
-        if "top" in question_lower and "provider" in question_lower and "outpatient" in question_lower:
+        if (
+            "top" in question_lower
+            and "provider" in question_lower
+            and "outpatient" in question_lower
+        ):
             return "top_outpatient_providers"
 
         if "top" in question_lower and "provider" in question_lower:
@@ -43,6 +47,13 @@ class QueryRouter:
 
         if "diabetes" in question_lower or "diabetic" in question_lower:
             return "diabetes_cost_summary"
+
+        if (
+            "reimbursement" in question_lower
+            or "claim amount" in question_lower
+            or "distribution" in question_lower
+        ):
+            return "reimbursement_distribution"
 
         return "fallback"
 
@@ -134,11 +145,21 @@ class ResponseGenerator:
                 "ChronicCond_Diabetes"
             ).to_dict(orient="records")
 
+        if route_name == "reimbursement_distribution":
+            inpatient = self.analytics_engine.tables["train_inpatient"]
+
+            return (
+                inpatient[["InscClaimAmtReimbursed"]]
+                .dropna()
+                .to_dict(orient="records")
+            )
+
         return {
             "message": (
                 "This question is not supported by the current analytics routes. "
                 "Try asking about table shapes, inpatient summary, outpatient summary, "
-                "age statistics, top providers, state claim counts, or diabetes cost summary."
+                "age statistics, top providers, state claim counts, diabetes cost summary, "
+                "or reimbursement distribution."
             )
         }
 
