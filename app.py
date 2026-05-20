@@ -47,6 +47,9 @@ LANGUAGE_TEXT = {
 
 
 def resolve_data_dir() -> Path:
+    """
+    Prefer full local processed data and fall back to sample data for demo deployment.
+    """
     required_file = "train_beneficiary_clean.parquet"
 
     if (PROCESSED_DATA_DIR / required_file).exists():
@@ -57,11 +60,15 @@ def resolve_data_dir() -> Path:
 
     raise FileNotFoundError(
         "No healthcare Parquet data found. "
-        "Place cleaned Parquet files in data/processed/ or sample Parquet files in data/sample/."
+        "Place cleaned Parquet files in data/processed/ "
+        "or sample Parquet files in data/sample/."
     )
 
 
 def initialize_components() -> tuple[HealthcareAnalyticsEngine, ResponseGenerator]:
+    """
+    Load healthcare tables and initialize analytics, response, and graph components.
+    """
     data_dir = resolve_data_dir()
 
     loader = HealthcareDataLoader(data_dir=str(data_dir))
@@ -85,23 +92,48 @@ GRAPH_WORKFLOW = HealthcareGraphWorkflow(
 )
 
 
-def update_example_visibility(language: str):
+def update_example_visibility(language: str) -> tuple[gr.update, gr.update]:
+    """
+    Show only the example prompts for the selected interface language.
+    """
     if language == "Deutsch":
         return gr.update(visible=False), gr.update(visible=True)
 
     return gr.update(visible=True), gr.update(visible=False)
 
 
+def create_empty_question_chart(language: str) -> go.Figure:
+    """
+    Return a simple placeholder chart when the user submits an empty question.
+    """
+    fig = go.Figure()
+
+    fig.update_layout(
+        title=(
+            "Keine Frage eingegeben"
+            if language == "Deutsch"
+            else "No question entered"
+        )
+    )
+
+    return fig
+
+
 def respond(question: str, language: str) -> tuple[str, go.Figure]:
+    """
+    Submit a user question to the LangGraph workflow and return text + chart output.
+    """
     if not question or not question.strip():
         if language == "Deutsch":
-            empty_fig = go.Figure()
-            empty_fig.update_layout(title="Keine Frage eingegeben")
-            return "Bitte geben Sie eine Frage zur Healthcare-Analyse ein.", empty_fig
+            return (
+                "Bitte geben Sie eine Frage zur Healthcare-Analyse ein.",
+                create_empty_question_chart(language),
+            )
 
-        empty_fig = go.Figure()
-        empty_fig.update_layout(title="No question entered")
-        return "Please enter a healthcare analytics question.", empty_fig
+        return (
+            "Please enter a healthcare analytics question.",
+            create_empty_question_chart(language),
+        )
 
     result = GRAPH_WORKFLOW.invoke(
         question=question,
