@@ -115,6 +115,7 @@ Current project features include:
 - local processed-data loading with future sample-data fallback
 - LangGraph-based workflow orchestration
 - Hugging Face deployment with sample-data fallback
+- modular response and chart helper architecture
 
 ## Example Questions
 
@@ -228,6 +229,7 @@ Deployment details are documented in:
 - [LLM Response Layer](docs/llm_response_layer.md)
 - [Gradio Interface](docs/gradio_interface.md)
 - [LangGraph Orchestration](docs/langgraph_orchestration.md)
+- [Refactor Notes](docs/refactor_notes.md)
 
 ## Repository Structure
 
@@ -239,6 +241,8 @@ Medical-Insight-Explorer-Agent/
 │   ├── visualization_tools.py
 │   ├── response_generator.py
 │   ├── graph_workflow.py
+│   ├── language_utils.py
+│   ├── response_formatter.py
 │   └── prompt_templates.py
 ├── data/
 │   ├── processed/

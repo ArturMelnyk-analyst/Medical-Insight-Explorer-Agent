@@ -94,16 +94,18 @@ This repository starts from the cleaned Parquet outputs and focuses on:
 
 
 
-| Component           | File                           | Responsibility                                          |
+| Component | File | Responsibility |
 |---|---|---|
-| Data loader         | `agent/data_loader.py`         | Loads required cleaned Parquet tables                   |
-| Analytics engine    | `agent/analytics_engine.py`    | Computes deterministic healthcare metrics               |
-| Visualization tools | `agent/visualization_tools.py` | Generates Plotly charts                                 |
-| Response layer      | `agent/response_generator.py`  | Routes questions and formats grounded responses         |
-| Graph workflow      | `agent/graph_workflow.py`      | Coordinates LangGraph execution workflow                |
-| Prompt templates    | `agent/prompt_templates.py`    | Defines safe explanation prompts for optional LLM usage |
-| Gradio app          | `app.py`                       | Provides bilingual interactive user interface           |
-
+| Data loader | `agent/data_loader.py` | Loads required cleaned Parquet tables |
+| Analytics engine | `agent/analytics_engine.py` | Computes deterministic healthcare metrics |
+| Visualization tools | `agent/visualization_tools.py` | Generates Plotly charts |
+| Response layer | `agent/response_generator.py` | Routes questions and formats grounded responses |
+| Graph workflow | `agent/graph_workflow.py` | Coordinates LangGraph execution workflow |
+| Language utilities | `agent/language_utils.py` | Normalizes supported bilingual prompts |
+| Response formatter | `agent/response_formatter.py` | Formats computed results into English/German responses |
+| Chart router | `agent/chart_router.py` | Builds route-based Plotly visualizations |
+| Prompt templates | `agent/prompt_templates.py` | Defines safe explanation prompts for optional LLM usage |
+| Gradio app | `app.py` | Provides bilingual interactive user interface |
 
 
 
