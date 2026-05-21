@@ -52,6 +52,25 @@ LangGraph workflow
 Gradio interface
 ```
 
+## Architecture Diagrams
+
+Architecture diagrams are stored under:
+
+```text
+images/architecture/
+```
+
+Current diagrams include:
+
+```text
+images/architecture/data_pipeline_architecture.png
+images/architecture/agent_workflow_architecture.png
+```
+
+The data pipeline diagram shows the upstream cleaning project, cleaned Parquet outputs, data loading, and deterministic analytics engine.
+
+The agent workflow diagram shows the LangGraph routing flow, deterministic analytics tools, response generation, optional Plotly chart output, and bilingual Gradio/Hugging Face interface.
+
 
 ## Repository Relationship
 

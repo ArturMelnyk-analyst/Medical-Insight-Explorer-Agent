@@ -1,6 +1,8 @@
 # Medical Insight Explorer Agent
 
-Conversational AI analytics agent for exploring cleaned Medicare healthcare claims data using validated Parquet outputs from an upstream healthcare data-cleaning pipeline.
+[![Hugging Face Spaces](https://img.shields.io/badge/HuggingFace-LiveDemo-yellow?logo=huggingface)](https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent)
+
+Bilingual conversational healthcare analytics powered by deterministic computation and LangGraph orchestration.
 
 ---
 
@@ -203,6 +205,14 @@ German interface:
 
 ![German Demo](images/demo/gradio_app_german.png)
 
+Provider analytics:
+
+![Providers](images/demo/gradio_app_top_inpatient_providers.png)
+
+Reimbursement distribution:
+
+![Distribution](images/demo/inpatient_reimbursement_distribution.png)
+
 ## Hugging Face Demo
 
 A lightweight live demo is available on Hugging Face Spaces:
@@ -217,6 +227,32 @@ Deployment details are documented in:
 
 - [Deployment Guide](docs/deployment.md)
 
+## Portfolio Assets
+
+Additional recruiter-facing materials:
+
+- [Presentation PDF](docs/Medical_Insight_Explorer_Presentation.pdf)
+- [Presentation PowerPoint](docs/Medical_Insight_Explorer_Presentation.pptx)
+- [Demo Walkthrough GIF](demo/demo_walkthrough.gif)
+
+Supporting screenshots:
+
+```text
+images/portfolio/
+```
+
+Architecture diagrams:
+
+```text
+images/architecture/
+```
+
+Live Demo:
+
+Hugging Face:
+
+https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
@@ -230,32 +266,78 @@ Deployment details are documented in:
 - [Gradio Interface](docs/gradio_interface.md)
 - [LangGraph Orchestration](docs/langgraph_orchestration.md)
 - [Refactor Notes](docs/refactor_notes.md)
+- [Presentation PDF](docs/Medical_Insight_Explorer_Presentation.pdf)
+- [Presentation PowerPoint](docs/Medical_Insight_Explorer_Presentation.pptx)
 
 ## Repository Structure
 
 ```text
 Medical-Insight-Explorer-Agent/
+
 ├── agent/
-│   ├── data_loader.py
+│   ├── __init__.py
 │   ├── analytics_engine.py
-│   ├── visualization_tools.py
-│   ├── response_generator.py
+│   ├── chart_router.py
+│   ├── data_loader.py
 │   ├── graph_workflow.py
 │   ├── language_utils.py
+│   ├── prompt_templates.py
 │   ├── response_formatter.py
-│   └── prompt_templates.py
+│   ├── response_generator.py
+│   └── visualization_tools.py
+│
 ├── data/
 │   ├── processed/
 │   └── sample/
-├── notebooks/
-├── docs/
-├── images/
-│   └── demo/
+│
 ├── demo/
+│   ├── demo_walkthrough.gif
+│   └── example_prompts.md
+│
+├── docs/
+│   ├── analytics_engine.md
+│   ├── architecture.md
+│   ├── data_contract.md
+│   ├── deployment.md
+│   ├── gradio_interface.md
+│   ├── langgraph_orchestration.md
+│   ├── limitations.md
+│   ├── llm_response_layer.md
+│   ├── refactor_notes.md
+│   ├── user_guide.md
+│   ├── visualization_tools.md
+│   ├── Medical_Insight_Explorer_Presentation.pdf
+│   └── Medical_Insight_Explorer_Presentation.pptx
+│
+├── images/
+│   ├── architecture/
+│   │   ├── data_pipeline_architecture.png
+│   │   └── agent_workflow_architecture.png
+│   │
+│   ├── demo/
+│   │   ├── gradio_app_english.png
+│   │   ├── gradio_app_german.png
+│   │   ├── gradio_app_top_inpatient_providers.png
+│   │   ├── inpatient_reimbursement_distribution.png
+│   │   ├── average_inpatient_reimbursement_by_diabetes_indicator.png
+│   │   └── top_10_inpatient_providers_by_claim_count.png
+│   │
+│   └── portfolio/
+│       ├── hf_english_demo.png
+│       ├── hf_german_demo.png
+│       └── github_overview.png
+│
+├── notebooks/
+│
+├── scripts/
+│
+├── .env.example
+├── .gitignore
 ├── app.py
+├── LICENSE
+├── README.md
 ├── requirements.txt
-├── runtime.txt
-└── README.md
+└── runtime.txt
 ```
 
 ## Data Governance
@@ -301,6 +383,26 @@ The project currently includes:
 - visualization tools
 - grounded response layer
 - bilingual English/German Gradio interface
-- documentation and demo screenshots
+- documentation and recruiter assets
+- architecture diagrams
+- presentation materials
+- bilingual walkthrough demo GIF
 - LangGraph orchestration workflow
 - Hugging Face deployment support
+
+
+## Portfolio Demo Materials
+
+Recruiter-facing presentation and demo assets are available in:
+
+```text
+docs/Medical_Insight_Explorer_Presentation.pdf
+docs/Medical_Insight_Explorer_Presentation.pptx
+demo/demo_walkthrough.gif
+```
+
+The live Hugging Face demo is available here:
+
+```text
+https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent
+```
