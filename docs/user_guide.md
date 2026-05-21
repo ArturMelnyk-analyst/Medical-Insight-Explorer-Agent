@@ -173,6 +173,14 @@ CTRL + C
 python app.py
 ```
 
+## Portfolio Demo Materials
+
+Recruiter-facing presentation and demo assets are available in:
+
+```text
+docs/Medical_Insight_Explorer_Presentation.pdf
+demo/demo_walkthrough.gif
+```
 
 ## Safety Reminder
 
