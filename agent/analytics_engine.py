@@ -6,21 +6,12 @@ import pandas as pd
 class HealthcareAnalyticsEngine:
     """
     Deterministic analytics engine for cleaned Medicare healthcare claims data.
-
-    This class performs controlled pandas-based computations over the relational
-    Parquet tables loaded by HealthcareDataLoader.
-
-    The goal is to compute real metrics first. Later, an LLM can explain these
-    computed results instead of inventing answers.
     """
 
     def __init__(self, tables: Dict[str, pd.DataFrame]) -> None:
         self.tables = tables
 
     def get_table_shapes(self) -> pd.DataFrame:
-        """
-        Return row and column counts for all loaded tables.
-        """
         rows = []
 
         for table_name, dataframe in self.tables.items():
@@ -35,9 +26,6 @@ class HealthcareAnalyticsEngine:
         return pd.DataFrame(rows).sort_values("table_name").reset_index(drop=True)
 
     def inpatient_claim_summary(self) -> Dict[str, Optional[float]]:
-        """
-        Return basic summary statistics for training inpatient claims.
-        """
         inpatient = self.tables["train_inpatient"]
 
         summary = {
@@ -67,9 +55,6 @@ class HealthcareAnalyticsEngine:
         return summary
 
     def outpatient_claim_summary(self) -> Dict[str, Optional[float]]:
-        """
-        Return basic summary statistics for training outpatient claims.
-        """
         outpatient = self.tables["train_outpatient"]
 
         summary = {
@@ -99,9 +84,6 @@ class HealthcareAnalyticsEngine:
         return summary
 
     def beneficiary_age_summary(self) -> Dict[str, Optional[float]]:
-        """
-        Return summary statistics for beneficiary age.
-        """
         beneficiary = self.tables["train_beneficiary"]
 
         if "AgeAtDeathOrLastClaim" not in beneficiary.columns:
@@ -122,9 +104,6 @@ class HealthcareAnalyticsEngine:
         claim_type: str = "inpatient",
         top_n: int = 10,
     ) -> pd.DataFrame:
-        """
-        Return top providers by claim count for inpatient or outpatient claims.
-        """
         if claim_type not in {"inpatient", "outpatient"}:
             raise ValueError("claim_type must be either 'inpatient' or 'outpatient'.")
 
@@ -134,13 +113,7 @@ class HealthcareAnalyticsEngine:
         if "Provider" not in claims.columns:
             raise ValueError(f"Provider column not found in {table_name}.")
 
-        result = (
-            claims["Provider"]
-            .value_counts()
-            .head(top_n)
-            .reset_index()
-        )
-
+        result = claims["Provider"].value_counts().head(top_n).reset_index()
         result.columns = ["Provider", "claim_count"]
 
         return result
@@ -152,8 +125,7 @@ class HealthcareAnalyticsEngine:
         """
         Calculate inpatient reimbursement statistics by chronic-condition flag.
 
-        Example condition columns may include chronic disease indicators from
-        the beneficiary table.
+        Handles both raw Medicare numeric indicators and cleaned text labels.
         """
         beneficiary = self.tables["train_beneficiary"]
         inpatient = self.tables["train_inpatient"]
@@ -161,11 +133,14 @@ class HealthcareAnalyticsEngine:
         if condition_col not in beneficiary.columns:
             raise ValueError(f"Column not found in beneficiary table: {condition_col}")
 
-        if "BeneID" not in beneficiary.columns or "BeneID" not in inpatient.columns:
-            raise ValueError("BeneID must exist in both beneficiary and inpatient tables.")
+        if "BeneID" not in beneficiary.columns:
+            raise ValueError("BeneID missing from beneficiary table.")
+
+        if "BeneID" not in inpatient.columns:
+            raise ValueError("BeneID missing from inpatient table.")
 
         if "InscClaimAmtReimbursed" not in inpatient.columns:
-            raise ValueError("InscClaimAmtReimbursed column not found in inpatient table.")
+            raise ValueError("InscClaimAmtReimbursed missing from inpatient table.")
 
         merged = inpatient.merge(
             beneficiary[["BeneID", condition_col]],
@@ -173,22 +148,116 @@ class HealthcareAnalyticsEngine:
             how="left",
         )
 
-        result = (
-            merged.groupby(condition_col, dropna=False)["InscClaimAmtReimbursed"]
-            .agg(["count", "mean", "median", "sum"])
-            .reset_index()
-            .sort_values("mean", ascending=False)
+        label_map = {
+            "1": "Diabetes",
+            "1.0": "Diabetes",
+            "diabetes": "Diabetes",
+            "yes": "Diabetes",
+            "true": "Diabetes",
+            "2": "No Diabetes",
+            "2.0": "No Diabetes",
+            "no diabetes": "No Diabetes",
+            "no_diabetes": "No Diabetes",
+            "no": "No Diabetes",
+            "false": "No Diabetes",
+        }
+
+        merged["ConditionLabel"] = (
+            merged[condition_col]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .map(label_map)
         )
 
-        return result
+        merged = merged.dropna(
+            subset=["ConditionLabel", "InscClaimAmtReimbursed"]
+        ).copy()
+
+        result = (
+            merged.groupby("ConditionLabel", observed=True)["InscClaimAmtReimbursed"]
+            .agg(["count", "mean", "median", "sum"])
+            .reset_index()
+            .rename(columns={"ConditionLabel": condition_col})
+        )
+
+        result[condition_col] = pd.Categorical(
+            result[condition_col],
+            categories=["No Diabetes", "Diabetes"],
+            ordered=True,
+        )
+
+        return result.sort_values(condition_col).reset_index(drop=True)
+
+    def inpatient_reimbursement_by_diabetes_status(self) -> pd.DataFrame:
+        """
+        Return claim-level reimbursement values by diabetes status.
+
+        Used for distribution visualization because box plots are more informative
+        than mean-only bar charts for skewed reimbursement data.
+        """
+        beneficiary = self.tables["train_beneficiary"]
+        inpatient = self.tables["train_inpatient"]
+
+        condition_col = "ChronicCond_Diabetes"
+
+        required_beneficiary_cols = ["BeneID", condition_col]
+        required_inpatient_cols = ["BeneID", "InscClaimAmtReimbursed"]
+
+        for col in required_beneficiary_cols:
+            if col not in beneficiary.columns:
+                raise ValueError(f"Column not found in beneficiary table: {col}")
+
+        for col in required_inpatient_cols:
+            if col not in inpatient.columns:
+                raise ValueError(f"Column not found in inpatient table: {col}")
+
+        merged = inpatient.merge(
+            beneficiary[required_beneficiary_cols],
+            on="BeneID",
+            how="left",
+        )
+
+        label_map = {
+            "1": "Diabetes",
+            "1.0": "Diabetes",
+            "diabetes": "Diabetes",
+            "yes": "Diabetes",
+            "true": "Diabetes",
+            "2": "No Diabetes",
+            "2.0": "No Diabetes",
+            "no diabetes": "No Diabetes",
+            "no_diabetes": "No Diabetes",
+            "no": "No Diabetes",
+            "false": "No Diabetes",
+        }
+
+        merged["DiabetesStatus"] = (
+            merged[condition_col]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .map(label_map)
+        )
+
+        result = (
+            merged[["DiabetesStatus", "InscClaimAmtReimbursed"]]
+            .dropna()
+            .copy()
+        )
+
+        result["DiabetesStatus"] = pd.Categorical(
+            result["DiabetesStatus"],
+            categories=["No Diabetes", "Diabetes"],
+            ordered=True,
+        )
+
+        return result.sort_values("DiabetesStatus").reset_index(drop=True)
 
     def claim_distribution_by_state(
         self,
         claim_type: str = "inpatient",
     ) -> pd.DataFrame:
-        """
-        Return claim counts by beneficiary state for inpatient or outpatient claims.
-        """
         if claim_type not in {"inpatient", "outpatient"}:
             raise ValueError("claim_type must be either 'inpatient' or 'outpatient'.")
 
@@ -217,8 +286,4 @@ class HealthcareAnalyticsEngine:
         return result
 
     def available_beneficiary_columns(self) -> List[str]:
-        """
-        Return available columns from the training beneficiary table.
-        Useful for discovering chronic-condition columns.
-        """
         return self.tables["train_beneficiary"].columns.tolist()

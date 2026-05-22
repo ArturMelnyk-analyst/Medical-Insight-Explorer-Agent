@@ -63,6 +63,14 @@ The dataset may not represent:
 - clinical reality
 - causal medical relationships
 
+## Diabetes Reimbursement Comparison
+
+The diabetes reimbursement comparison is included as an example of controlled chronic-condition analytics.
+
+In the current dataset, the reimbursement distributions for beneficiaries with and without diabetes appear highly similar. This means the visualization should be interpreted as a distribution comparison rather than as evidence of a strong reimbursement difference.
+
+The project does not claim that diabetes status causes higher or lower reimbursement values.
+
 ## Bilingual Limitations
 
 The app supports English and German user-facing text for selected analytical routes.
