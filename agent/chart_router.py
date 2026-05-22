@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from agent.analytics_engine import HealthcareAnalyticsEngine
 from agent.visualization_tools import (
     bar_chart_top_values,
+    box_plot,
     histogram,
     horizontal_bar_chart,
 )
@@ -38,6 +39,39 @@ def create_placeholder_chart(language: str) -> go.Figure:
 
     return fig
 
+
+def build_diabetes_cost_chart(
+    analytics_engine: HealthcareAnalyticsEngine,
+    language: str,
+) -> go.Figure:
+    """
+    Build diabetes reimbursement distribution chart.
+
+    A box plot is used instead of a mean-only bar chart because inpatient
+    reimbursement data is skewed and group averages can hide spread and outliers.
+    """
+    df = analytics_engine.inpatient_reimbursement_by_diabetes_status()
+
+    return box_plot(
+        df=df,
+        x_col="DiabetesStatus",
+        y_col="InscClaimAmtReimbursed",
+        title=(
+            "Inpatient Reimbursement Distribution by Diabetes Status"
+            if language == "English"
+            else "Verteilung stationärer Erstattungen nach Diabetes-Status"
+        ),
+        x_label=(
+            "Diabetes Status"
+            if language == "English"
+            else "Diabetes-Status"
+        ),
+        y_label=(
+            "Inpatient Claim Amount Reimbursed"
+            if language == "English"
+            else "Stationärer Erstattungsbetrag"
+        ),
+    )
 
 def build_chart_for_route(
     analytics_engine: HealthcareAnalyticsEngine,
@@ -122,29 +156,9 @@ def build_chart_for_route(
         )
 
     if route == "diabetes_cost_summary":
-        df = analytics_engine.average_inpatient_cost_by_chronic_condition(
-            "ChronicCond_Diabetes"
-        )
-
-        return bar_chart_top_values(
-            df=df,
-            x_col="ChronicCond_Diabetes",
-            y_col="mean",
-            title=(
-                "Average Inpatient Reimbursement by Diabetes Indicator"
-                if language == "English"
-                else "Durchschnittliche stationäre Erstattung nach Diabetes-Indikator"
-            ),
-            x_label=(
-                "Diabetes Indicator"
-                if language == "English"
-                else "Diabetes-Indikator"
-            ),
-            y_label=(
-                "Average Reimbursement"
-                if language == "English"
-                else "Durchschnittliche Erstattung"
-            ),
+        return build_diabetes_cost_chart(
+            analytics_engine=analytics_engine,
+            language=language,
         )
 
     if route == "reimbursement_distribution":

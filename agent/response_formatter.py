@@ -78,7 +78,13 @@ def build_english_summary(route: str, computed_result: Any) -> str:
         return "Claims were grouped by state and ranked by claim count."
 
     if route == "diabetes_cost_summary":
-        return "Inpatient reimbursement amounts were grouped by diabetes indicator."
+        return (
+            "Inpatient reimbursement values were grouped by diabetes status. "
+            "Observation: reimbursement distributions for beneficiaries with and without diabetes "
+            "appear highly similar in this dataset. "
+            "The visualization should be interpreted as a distribution comparison rather than "
+            "evidence of a strong reimbursement difference."
+        )
 
     if route == "reimbursement_distribution":
         return (
@@ -126,7 +132,13 @@ def build_german_summary(route: str, computed_result: Any) -> str:
         return "Die Claims wurden nach Bundesstaat gruppiert und nach Claim-Anzahl sortiert."
 
     if route == "diabetes_cost_summary":
-        return "Die stationären Erstattungsbeträge wurden nach Diabetes-Indikator gruppiert."
+        return (
+            "Die stationären Erstattungsbeträge wurden nach Diabetes-Status gruppiert. "
+            "Beobachtung: Die Erstattungsverteilungen für Begünstigte mit und ohne Diabetes "
+            "erscheinen in diesem Datensatz sehr ähnlich. "
+            "Die Visualisierung sollte daher als Verteilungsvergleich und nicht als Hinweis "
+            "auf einen starken Unterschied interpretiert werden."
+        )
 
     if route == "reimbursement_distribution":
         return (
