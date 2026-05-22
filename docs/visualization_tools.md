@@ -61,6 +61,21 @@ The validation notebook currently demonstrates:
 - Top 10 inpatient providers by claim count
 - Top 10 outpatient providers by claim count
 
+### Diabetes Reimbursement Visualization
+
+The diabetes reimbursement route uses a box plot instead of a mean-only bar chart.
+
+This choice was made because inpatient reimbursement data is skewed, and group averages can hide distribution shape, spread, and outliers.
+
+The chart compares reimbursement distributions for:
+
+```text
+No Diabetes
+Diabetes
+```
+
+In the current dataset, the two distributions are visually similar, so the response layer explicitly notes this limitation.
+
 ### Geographic Analytics
 
 - Top states by inpatient claim count
