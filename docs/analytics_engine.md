@@ -16,26 +16,42 @@ This layer computes deterministic healthcare metrics directly from cleaned relat
 
 ## Current Functions
 
+The analytics engine exposes modular analytical helper functions used by the AI Agent for healthcare claim exploration, reimbursement analysis, provider monitoring, and beneficiary-level insights.
+
+### Dataset Inspection
 
 | Function | Purpose |
-
 |---|---|
-
 | `get_table_shapes()` | Returns row and column counts for all loaded tables |
+| `available_beneficiary_columns()` | Lists beneficiary columns available for analytics |
 
+---
+
+### Claim Analytics
+
+| Function | Purpose |
+|---|---|
 | `inpatient_claim_summary()` | Summarizes inpatient claim counts, beneficiaries, providers, and reimbursement |
-
 | `outpatient_claim_summary()` | Summarizes outpatient claim counts, beneficiaries, providers, and reimbursement |
-
-| `beneficiary_age_summary()` | Summarizes beneficiary age statistics |
-
-| `top_providers_by_claim_count()` | Returns top providers by claim volume |
-
-| `average_inpatient_cost_by_chronic_condition()` | Calculates inpatient reimbursement by chronic-condition flag |
-
 | `claim_distribution_by_state()` | Counts claims by beneficiary state |
 
-| `available_beneficiary_columns()` | Lists beneficiary columns available for analytics |
+---
+
+### Reimbursement Analytics
+
+| Function | Purpose |
+|---|---|
+| `average_inpatient_cost_by_chronic_condition()` | Calculates inpatient reimbursement by chronic-condition flag |
+| `inpatient_reimbursement_by_diabetes_status()` | Returns inpatient reimbursement distributions segmented by diabetes status for comparative cost analysis |
+
+---
+
+### Provider & Beneficiary Analytics
+
+| Function | Purpose |
+|---|---|
+| `top_providers_by_claim_count()` | Returns top providers by claim volume |
+| `beneficiary_age_summary()` | Summarizes beneficiary age statistics |
 
 
 ## Design Principle
@@ -55,11 +71,11 @@ User question
        ↓
 Query routing
        ↓
-Analytics engine function
-      ↓
 Computed pandas result
-      ↓
-LLM explanation
+       ↓
+Analytical insight layer
+       ↓
+Formatted response
 ```
 
 

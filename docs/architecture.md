@@ -34,22 +34,26 @@ No unsupported medical diagnosis.
 Raw Kaggle CSV files
       ↓
 Healthcare-Data-Cleaning repository
-       ↓
+      ↓
 Cleaned validated Parquet tables
-       ↓
+      ↓
 Medical Insight Explorer Agent
-       ↓
+      ↓
 HealthcareDataLoader
-       ↓
+      ↓
 HealthcareAnalyticsEngine
-       ↓
-Visualization tools
-       ↓
-ResponseGenerator
-       ↓
+      ↓
+Stakeholder persona context
+      ↓
 LangGraph workflow
-       ↓
-Gradio interface
+      ↓
+Analytical insight layer
+      ↓
+Response formatter
+      ↓
+Chart router
+      ↓
+Bilingual Gradio / Hugging Face interface
 ```
 
 ## Architecture Diagrams
@@ -102,10 +106,13 @@ This repository starts from the cleaned Parquet outputs and focuses on:
 
 
 - loading validated relational tables
-- computing healthcare analytics
-- generating visualizations
+- computing deterministic healthcare analytics
+- generating Plotly visualizations
+- providing persona-guided analytical workflows
+- adding cautious analytical interpretation
 - explaining computed results
-- exposing the workflow through a Gradio interface
+- exposing the workflow through a bilingual Gradio interface
+- deploying a lightweight sample-data demo on Hugging Face Spaces
 
 
 
@@ -113,18 +120,21 @@ This repository starts from the cleaned Parquet outputs and focuses on:
 
 
 
-| Component | File | Responsibility |
-|---|---|---|
-| Data loader | `agent/data_loader.py` | Loads required cleaned Parquet tables |
-| Analytics engine | `agent/analytics_engine.py` | Computes deterministic healthcare metrics |
-| Visualization tools | `agent/visualization_tools.py` | Generates Plotly charts |
-| Response layer | `agent/response_generator.py` | Routes questions and formats grounded responses |
-| Graph workflow | `agent/graph_workflow.py` | Coordinates LangGraph execution workflow |
-| Language utilities | `agent/language_utils.py` | Normalizes supported bilingual prompts |
-| Response formatter | `agent/response_formatter.py` | Formats computed results into English/German responses |
-| Chart router | `agent/chart_router.py` | Builds route-based Plotly visualizations |
-| Prompt templates | `agent/prompt_templates.py` | Defines safe explanation prompts for optional LLM usage |
-| Gradio app | `app.py` | Provides bilingual interactive user interface |
+| Component           | File                           | Responsibility                                                        |
+| ------------------- | ------------------------------ | --------------------------------------------------------------------- |
+| Data loader         | `agent/data_loader.py`         | Loads required cleaned Parquet tables                                 |
+| Analytics engine    | `agent/analytics_engine.py`    | Computes deterministic healthcare metrics                             |
+| Visualization tools | `agent/visualization_tools.py` | Generates reusable Plotly chart types                                 |
+| Chart router        | `agent/chart_router.py`        | Builds route-specific Plotly visualizations                           |
+| Language utilities  | `agent/language_utils.py`      | Normalizes supported bilingual prompts                                |
+| Persona layer       | `agent/personas.py`            | Defines stakeholder personas, descriptions, and recommended questions |
+| Insight layer       | `agent/insight_layer.py`       | Adds cautious deterministic analytical interpretation                 |
+| Response formatter  | `agent/response_formatter.py`  | Formats summaries, insights, computed results, and safety notes       |
+| Response layer      | `agent/response_generator.py`  | Provides controlled routing and optional LLM explanation support      |
+| Graph workflow      | `agent/graph_workflow.py`      | Coordinates LangGraph execution workflow                              |
+| Prompt templates    | `agent/prompt_templates.py`    | Defines safe explanation prompts for optional LLM usage               |
+| Gradio app          | `app.py`                       | Provides bilingual interactive user interface                         |
+
 
 
 
@@ -178,38 +188,61 @@ for future lightweight demo deployment.
 
 The analytics engine computes controlled metrics using pandas.
 
-
-
 Examples include:
-
-
 
 - table shape summaries
 - inpatient and outpatient claim summaries
 - beneficiary age statistics
 - top providers by claim count
-- claim distribution by state
-- reimbursement summaries by chronic-condition indicator
-
-
+- distribution by state
+- reimbursement distribution analysis
+- reimbursement comparison by chronic-condition indicator
 
 The key point is that numbers are computed by code, not invented by an LLM.
 
 
 
+## Persona Layer
+
+The persona layer defines stakeholder-oriented demo workflows.
+
+Current personas include:
+
+- Hospital Operations Analyst
+- Healthcare Fraud Investigator
+- Healthcare Policy Researcher
+
+Each persona provides:
+
+- a short use-case description
+- recommended analytical questions
+- bilingual English/German support
+
+This layer makes the app purpose clearer for reviewers by connecting supported analytics routes to realistic healthcare stakeholder needs.
+
+
+## Insight Layer
+
+The insight layer adds deterministic analytical interpretation after computation.
+
+It does not create new statistics and does not make clinical claims.
+
+The goal is to explain why a computed result may matter in a cautious, non-causal, claims-analytics context.
+
+Example insight types include:
+
+- provider concentration interpretation
+- regional utilization interpretation
+- reimbursement distribution interpretation
+- cautious chronic-condition comparison interpretation
+
 
 
 ## Visualization Layer
 
-
-
 The visualization tools convert analytics results into Plotly charts.
 
-
-
 Supported visual types include:
-
-
 
 - vertical bar charts
 - horizontal bar charts
@@ -217,6 +250,7 @@ Supported visual types include:
 - box plots
 - placeholder charts for text-only analytical questions
 
+Chart selection remains route-based and controlled.
 
 
 
@@ -235,11 +269,15 @@ The workflow is:
 ```text
 User question
        ↓
+Stakeholder persona context
+       ↓
 Normalize question if needed
        ↓
 Select supported analytics route
        ↓
 Run deterministic pandas function
+       ↓
+Generate analytical insight
        ↓
 Format computed result
        ↓
@@ -248,6 +286,8 @@ Return text response and optional chart
 
 
 The LLM does not directly manipulate dataframes.
+
+The current deployed configuration uses deterministic fallback responses.
 
 
 ## LangGraph Orchestration Layer
@@ -271,7 +311,7 @@ generate_chart
 
 The graph does not replace deterministic analytics.
 
-It coordinates the existing safe computation and response-generation pipeline.
+It coordinates the existing safe computation, response-generation and visualization pipeline.
 
 
 
@@ -281,17 +321,16 @@ It coordinates the existing safe computation and response-generation pipeline.
 
 The Gradio interface supports:
 
-
-
-- English examples
-- German examples
+- English personas
+- German personas
+- persona-specific recommended questions
+- clickable persona-specific example questions
 - English/German summaries
+- English/German analytical insights
 - German-safe analytics wording
 - translated method notes
 - translated safety notes
 - translated chart titles
-
-
 
 German questions are normalized into supported analytics routes before computation.
 
@@ -332,7 +371,6 @@ Possible future improvements include:
 - LangSmith tracing
 - conditional graph routing
 - expanded multilingual support
-- richer chart routing
 - expanded analytics tools
 - automated test suite
 - optional database-backed query layer

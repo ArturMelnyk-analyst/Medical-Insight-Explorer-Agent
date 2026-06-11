@@ -1,8 +1,8 @@
-\# LangGraph Orchestration
+# LangGraph Orchestration
 
 
 
-\## Purpose
+## Purpose
 
 
 
@@ -18,7 +18,7 @@ This PR does not change the core analytics logic. It wraps the existing safe pip
 
 
 
-\## Why LangGraph
+## Why LangGraph
 
 
 
@@ -29,21 +29,13 @@ The project previously used a simple direct routing pattern:
 ```text
 
 User question
-
-&#x20;      ↓
-
+      ↓
 Rule-based router
-
-&#x20;      ↓
-
+      ↓
 Deterministic analytics function
-
-&#x20;      ↓
-
+      ↓
 Text response
-
-&#x20;      ↓
-
+      ↓
 Optional chart
 
 ```
@@ -54,43 +46,37 @@ The LangGraph layer makes this workflow more explicit and easier to extend.
 
 
 
-\## Graph Flow
+## Graph Flow
 
 
 
 ```text
 
 User question
-
-&#x20;      ↓
-
-normalize\_question
-
-&#x20;      ↓
-
-route\_question
-
-&#x20;      ↓
-
-run\_analytics
-
-&#x20;      ↓
-
-generate\_response
-
-&#x20;      ↓
-
-generate\_chart
-
-&#x20;      ↓
-
+      ↓
+normalize_question
+      ↓
+route_question
+      ↓
+run_analytics
+      ↓
+generate_response
+      ↓
+generate_chart
+      ↓
 final output
 
 ```
 
 
+## Persona Context
 
-\## Main File
+Persona selection currently guides the UI and recommended questions.
+
+The LangGraph workflow still routes based on the submitted question and selected language.
+
+
+## Main File
 
 
 
@@ -100,13 +86,13 @@ The orchestration logic is implemented in:
 
 ```text
 
-agent/graph\_workflow.py
+agent/graph_workflow.py
 
 ```
 
 
 
-\## Graph State
+## Graph State
 
 
 
@@ -118,23 +104,23 @@ The state includes:
 
 
 
-\- original question
+- original question
 
-\- selected language
+- selected language
 
-\- normalized question
+- normalized question
 
-\- selected analytics route
+- selected analytics route
 
-\- computed result
+- computed result
 
-\- formatted text response
+- formatted response with analytical insight
 
-\- optional Plotly chart
+- optional Plotly chart
 
 
 
-\## Graph Nodes
+## Graph Nodes
 
 
 
@@ -142,19 +128,19 @@ The state includes:
 
 |---|---|
 
-| `normalize\_question` | Normalizes German prompts into supported analytics questions |
+| `normalize_question` | Normalizes German prompts into supported analytics questions |
 
-| `route\_question` | Selects a supported analytics route |
+| `route_question` | Selects a supported analytics route |
 
-| `run\_analytics` | Executes deterministic pandas-based analytics |
+| `run_analytics` | Executes deterministic pandas-based analytics |
 
-| `generate\_response` | Formats the computed result into English or German text |
+| `generate_response` | Formats the computed result into English or German text |
 
-| `generate\_chart` | Creates an optional Plotly figure |
+| `generate_chart` | Creates an optional Plotly figure |
 
 
 
-\## Design Principle
+## Design Principle
 
 
 
@@ -170,7 +156,7 @@ The graph only organizes the workflow.
 
 
 
-\## Safety Boundaries
+## Safety Boundaries
 
 
 
@@ -182,19 +168,19 @@ It does not provide:
 
 
 
-\- diagnosis
+- diagnosis
 
-\- treatment recommendations
+- treatment recommendations
 
-\- clinical decision-making
+- clinical decision-making
 
-\- patient-level medical advice
+- patient-level medical advice
 
-\- unsupported causal claims
+- unsupported causal claims
 
 
 
-\## Local Validation
+## Local Validation
 
 
 
@@ -204,7 +190,7 @@ Example English test:
 
 ```bash
 
-python -c "from agent.data\_loader import HealthcareDataLoader; from agent.analytics\_engine import HealthcareAnalyticsEngine; from agent.response\_generator import ResponseGenerator; from agent.graph\_workflow import HealthcareGraphWorkflow; tables=HealthcareDataLoader().load\_tables(); engine=HealthcareAnalyticsEngine(tables); rg=ResponseGenerator(engine, use\_llm=False); graph=HealthcareGraphWorkflow(engine, rg); result=graph.invoke('Show top inpatient providers', 'English'); print(result\['route']); print(result\['text\_response']\[:300])"
+python -c "from agent.data_loader import HealthcareDataLoader; from agent.analytics_engine import HealthcareAnalyticsEngine; from agent.response_generator import ResponseGenerator; from agent.graph_workflow import HealthcareGraphWorkflow; tables=HealthcareDataLoader().load_tables(); engine=HealthcareAnalyticsEngine(tables); rg=ResponseGenerator(engine, use_llm=False); graph=HealthcareGraphWorkflow(engine, rg); result=graph.invoke('Show top inpatient providers', 'English'); print(result['route']); print(result['text_response'][:300])"
 
 ```
 
@@ -216,13 +202,13 @@ Example German test:
 
 ```bash
 
-python -c "from agent.data\_loader import HealthcareDataLoader; from agent.analytics\_engine import HealthcareAnalyticsEngine; from agent.response\_generator import ResponseGenerator; from agent.graph\_workflow import HealthcareGraphWorkflow; tables=HealthcareDataLoader().load\_tables(); engine=HealthcareAnalyticsEngine(tables); rg=ResponseGenerator(engine, use\_llm=False); graph=HealthcareGraphWorkflow(engine, rg); result=graph.invoke('Zeige die wichtigsten stationären Provider', 'Deutsch'); print(result\['route']); print(result\['text\_response']\[:300])"
+python -c "from agent.data_loader import HealthcareDataLoader; from agent.analytics_engine import HealthcareAnalyticsEngine; from agent.response_generator import ResponseGenerator; from agent.graph_workflow import HealthcareGraphWorkflow; tables=HealthcareDataLoader().load_tables(); engine=HealthcareAnalyticsEngine(tables); rg=ResponseGenerator(engine, use_llm=False); graph=HealthcareGraphWorkflow(engine, rg); result=graph.invoke('Zeige die wichtigsten stationären Provider', 'Deutsch'); print(result['route']); print(result['text_response'][:300])"
 
 ```
 
 
 
-\## Future Improvements
+## Future Improvements
 
 
 
@@ -230,15 +216,15 @@ Future improvements may include:
 
 
 
-\- conditional graph edges
+- conditional graph edges
 
-\- richer route validation
+- richer route validation
 
-\- graph-level logging
+- graph-level logging
 
-\- LangSmith tracing
+- LangSmith tracing
 
-\- expanded analytical routes
+- expanded analytical routes
 
-\- optional LLM explanation node
+- optional LLM explanation node
 
