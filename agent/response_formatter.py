@@ -2,6 +2,8 @@ from typing import Any
 
 import pandas as pd
 
+from agent.insight_layer import build_analytical_insight
+
 
 def format_computed_result(
     computed_result: Any,
@@ -80,10 +82,8 @@ def build_english_summary(route: str, computed_result: Any) -> str:
     if route == "diabetes_cost_summary":
         return (
             "Inpatient reimbursement values were grouped by diabetes status. "
-            "Observation: reimbursement distributions for beneficiaries with and without diabetes "
-            "appear highly similar in this dataset. "
-            "The visualization should be interpreted as a distribution comparison rather than "
-            "evidence of a strong reimbursement difference."
+            "The visualization compares the reimbursement distributions for "
+            "beneficiaries with and without diabetes."
         )
 
     if route == "reimbursement_distribution":
@@ -134,10 +134,8 @@ def build_german_summary(route: str, computed_result: Any) -> str:
     if route == "diabetes_cost_summary":
         return (
             "Die stationären Erstattungsbeträge wurden nach Diabetes-Status gruppiert. "
-            "Beobachtung: Die Erstattungsverteilungen für Begünstigte mit und ohne Diabetes "
-            "erscheinen in diesem Datensatz sehr ähnlich. "
-            "Die Visualisierung sollte daher als Verteilungsvergleich und nicht als Hinweis "
-            "auf einen starken Unterschied interpretiert werden."
+            "Die Visualisierung vergleicht die Erstattungsverteilungen für Begünstigte "
+            "mit und ohne Diabetes."
         )
 
     if route == "reimbursement_distribution":
@@ -163,12 +161,19 @@ def format_response(
         language=language,
     )
 
+    insight = build_analytical_insight(
+        route=route,
+        language=language,
+    )
+
     if language == "Deutsch":
         summary = build_german_summary(route, computed_result)
 
         return (
             f"Zusammenfassung:\n"
             f"{summary}\n\n"
+            f"Analytische Einordnung:\n"
+            f"{insight}\n\n"
             f"Berechnetes Ergebnis:\n"
             f"{formatted_result}\n\n"
             f"Methodischer Hinweis:\n"
@@ -183,6 +188,8 @@ def format_response(
     return (
         f"Summary:\n"
         f"{summary}\n\n"
+        f"Analytical insight:\n"
+        f"{insight}\n\n"
         f"Computed result:\n"
         f"{formatted_result}\n\n"
         f"Method note:\n"
