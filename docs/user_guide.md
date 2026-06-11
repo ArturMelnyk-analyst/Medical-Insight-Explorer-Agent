@@ -38,6 +38,18 @@ Use the language dropdown to select the preferred interface language.
 
 The backend analytics engine remains the same in both languages.
 
+## Stakeholder Personas
+
+The app includes stakeholder personas to make the demo use cases clearer.
+
+Available personas:
+
+- Hospital Operations Analyst
+- Healthcare Fraud Investigator
+- Healthcare Policy Researcher
+
+Selecting a persona updates the use-case description and clickable recommended questions.
+
 ## Supported English Questions
 
 Examples:
@@ -75,12 +87,18 @@ Zeige die Verteilung der Erstattungsbeträge
 Each response contains:
 
 1. **Summary**  
-   A short human-readable interpretation of the selected analysis.
-2. **Computed result**  
-   The actual result returned by deterministic pandas analytics.
-3. **Method note**  
+   What was computed.
+
+2. **Analytical insight**  
+   A cautious, non-causal interpretation of the computed result.
+
+3. **Computed result**  
+   The deterministic pandas output.
+
+4. **Method note**  
    A reminder that the result was computed from cleaned healthcare claims data.
-4. **Safety note**  
+
+5. **Safety note**  
    A reminder that the app performs claims analytics only.
 
 
@@ -109,24 +127,16 @@ For text-only questions, the app displays a placeholder visualization message.
 
 ## Recommended Demo Flow
 
-For a recruiter or reviewer, use this sequence:
-
 1. Select English
-2. Ask: Show top inpatient providers
-3. Review text output and chart
-4. Select Deutsch
-5. Ask: Zeige die wichtigsten stationären Provider
-6. Review German response and localized chart
-7. Ask: Show reimbursement distribution
-8. Review histogram output
-
-This demonstrates:
-
-- natural-language interaction
-- deterministic analytics
-- visualization support
-- bilingual UX
-- healthcare-safe wording
+2. Select Hospital Operations Analyst
+3. Click `Show top inpatient providers`
+4. Run analysis
+5. Review the analytical insight and chart
+6. Switch to Deutsch
+7. Select the German operations persona
+8. Click `Zeige die wichtigsten stationären Provider`
+9. Run analysis
+10. Review the German analytical insight and chart
 
 ## Data Requirements
 
@@ -187,4 +197,3 @@ demo/demo_walkthrough.gif
 This app is for healthcare claims analytics only.
 
 It should not be used for diagnosis, treatment recommendations, or clinical decision-making.
-

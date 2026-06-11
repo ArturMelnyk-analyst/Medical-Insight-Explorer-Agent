@@ -16,17 +16,17 @@ It allows users to ask natural-language healthcare analytics questions and recei
 
 ```text
 User question
-       ↓
+      ↓
 Gradio interface
-       ↓
-ResponseGenerator
-       ↓
-QueryRouter
-       ↓
+      ↓
+Stakeholder persona guidance
+      ↓
+LangGraph workflow
+      ↓
 HealthcareAnalyticsEngine
-       ↓
-Computed result
-       ↓
+      ↓
+Analytical insight layer
+      ↓
 Text response + optional Plotly chart
 ```
 
@@ -84,6 +84,18 @@ Current bilingual elements include:
 The backend analytics routes remain deterministic and language-independent. German prompts are normalized into supported deterministic analytics routes before computation.
 
 This design keeps the analytics engine stable while improving usability for German-speaking reviewers.
+
+## Stakeholder Persona Selector
+
+The Gradio interface includes a stakeholder persona selector.
+
+Selecting a persona updates:
+
+- persona description
+- clickable recommended questions
+- guided analytics workflow
+
+This improves reviewer usability by making the app purpose clear for different healthcare stakeholders.
 
 
 ## Data Source

@@ -1,8 +1,8 @@
-\# Refactor Notes
+# Refactor Notes
 
 
 
-\## Purpose
+## Purpose
 
 
 
@@ -10,7 +10,7 @@ This document explains the response and chart helper refactor completed after La
 
 
 
-\## Why This Refactor Was Needed
+## Why This Refactor Was Needed
 
 
 
@@ -26,7 +26,7 @@ This refactor separates responsibilities more clearly.
 
 
 
-\## Updated Module Responsibilities
+## Updated Module Responsibilities
 
 
 
@@ -36,17 +36,24 @@ This refactor separates responsibilities more clearly.
 
 | `app.py` | Gradio UI layout and event handling |
 
-| `agent/graph\_workflow.py` | LangGraph state workflow and orchestration |
+| `agent/graph_workflow.py` | LangGraph state workflow and orchestration |
 
-| `agent/language\_utils.py` | Language normalization helpers |
+| `agent/language_utils.py` | Language normalization helpers |
 
-| `agent/response\_formatter.py` | English/German response formatting |
+| `agent/response_formatter.py` | English/German response formatting |
 
-| `agent/chart\_router.py` | Route-based Plotly chart generation |
+| `agent/chart_router.py` | Route-based Plotly chart generation |
+
+| `agent/personas.py` | Defines stakeholder personas and recommended questions |
+
+| `agent/insight_layer.py` | Provides cautious analytical interpretation for supported routes |
+
+
+This update extends the helper-module separation by keeping persona guidance and analytical interpretation outside `app.py`.
 
 
 
-\## Design Principle
+## Design Principle
 
 
 
@@ -66,7 +73,7 @@ Deterministic analytics remain in `HealthcareAnalyticsEngine`.
 
 
 
-\## Result
+## Result
 
 
 
@@ -74,15 +81,21 @@ The project now has a cleaner separation between:
 
 
 
-\- UI logic
+- UI logic
 
-\- orchestration logic
+- orchestration logic
 
-\- response formatting
+- response formatting
 
-\- chart routing
+- chart routing
 
-\- deterministic analytics
+- visualization tools
+
+- deterministic analytics
+
+- persona guidance
+
+- analytical insight generation
 
 
 

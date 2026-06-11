@@ -12,17 +12,30 @@ The project follows this pattern:
 
 ```text
 User question
-       ↓
-Rule-based query router
-       ↓
+      ↓
+Rule-based route selection
+      ↓
 Deterministic pandas analytics function
-       ↓
+      ↓
 Computed result
-       ↓
-Optional LLM explanation
+      ↓
+Response formatter
+      ↓
+Analytical insight layer
+      ↓
+Optional LLM explanation support
 ```
 
 The LLM is used for interpretation, not calculation.
+
+## Analytical Insight Layer
+
+The response layer now includes deterministic analytical insights for supported routes.
+
+These insights explain computed results in cautious, non-causal language.
+
+The insight layer does not create new statistics and does not provide diagnosis, treatment advice, or clinical recommendations.
+
 
 
 ## Components

@@ -118,6 +118,23 @@ Current project features include:
 - LangGraph-based workflow orchestration
 - Hugging Face deployment with sample-data fallback
 - modular response and chart helper architecture
+- Stakeholder persona selector
+- Persona-specific recommended questions
+- Clickable guided analytics prompts
+- Deterministic analytical insight layer
+
+## Stakeholder Personas
+
+The app includes persona-guided healthcare analytics workflows for:
+
+- Hospital Operations Analyst
+- Healthcare Fraud Investigator
+- Healthcare Policy Researcher
+
+Each persona provides a short use-case description and recommended analytical questions.
+
+This makes the app easier to understand for healthcare reviewers, recruiters, and hiring managers.
+
 
 ## Example Questions
 
@@ -283,8 +300,9 @@ Medical-Insight-Explorer-Agent/
 │   ├── language_utils.py
 │   ├── prompt_templates.py
 │   ├── response_formatter.py
-│   ├── response_generator.py
-│   └── visualization_tools.py
+│   ├── visualization_tools.py
+│   ├── personas.py
+│   └── insight_layer.py
 │
 ├── data/
 │   ├── processed/

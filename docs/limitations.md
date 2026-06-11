@@ -71,6 +71,18 @@ In the current dataset, the reimbursement distributions for beneficiaries with a
 
 The project does not claim that diabetes status causes higher or lower reimbursement values.
 
+## Persona Limitations
+
+Stakeholder personas guide the demo workflow and recommended questions.
+
+They do not change the underlying analytics calculations, safety boundaries, or deterministic route selection.
+
+## Analytical Insight Limitations
+
+Analytical insights are descriptive and non-causal.
+
+They are intended to help interpret computed claims analytics results, not to provide diagnosis, treatment recommendations, or clinical decisions.
+
 ## Bilingual Limitations
 
 The app supports English and German user-facing text for selected analytical routes.
@@ -89,9 +101,9 @@ Chart routing is currently simple and keyword-based.
 
 ## Deployment Limitations
 
-The current implementation primarily targets local execution.
+The deployed Hugging Face version uses lightweight sample Parquet files.
 
-Hugging Face Spaces deployment is planned as a future step after sample data is prepared.
+Because it is a portfolio demo, outputs may differ from the full local processed datasets.
 
 ## Future Improvements
 
