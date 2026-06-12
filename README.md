@@ -222,10 +222,6 @@ German interface:
 
 ![German Demo](images/demo/gradio_app_german.png)
 
-Provider analytics:
-
-![Providers](images/demo/gradio_app_top_inpatient_providers.png)
-
 Reimbursement distribution:
 
 ![Distribution](images/demo/inpatient_reimbursement_distribution.png)
