@@ -162,10 +162,12 @@ def build_chart_for_route(
         )
 
     if route == "reimbursement_distribution":
-        inpatient = analytics_engine.tables["train_inpatient"]
+        reimbursement = (
+            analytics_engine.inpatient_reimbursement_distribution()
+        )
 
         return histogram(
-            df=inpatient,
+            df=reimbursement,
             column="InscClaimAmtReimbursed",
             title=(
                 "Distribution of Inpatient Claim Reimbursement"
