@@ -1,10 +1,15 @@
 import os
 from typing import Any, Dict
 
+import pandas as pd
 from dotenv import load_dotenv
 
 from agent.analytics_engine import HealthcareAnalyticsEngine
 from agent.prompt_templates import SYSTEM_PROMPT, build_explanation_prompt
+from agent.tool_registry import (
+    UnknownAnalyticsToolError,
+    execute_tool,
+)
 
 
 class QueryRouter:
@@ -104,64 +109,35 @@ class ResponseGenerator:
 
     def _run_route(self, route_name: str) -> Any:
         """
-        Execute a controlled analytics route.
+        Execute a controlled analytics route through the approved tool registry.
         """
-        if route_name == "table_shapes":
-            return self.analytics_engine.get_table_shapes().to_dict(orient="records")
+        if route_name == "fallback":
+            return {
+                "message": (
+                    "This question is not supported by the current analytics routes. "
+                    "Try asking about table shapes, inpatient summary, outpatient summary, "
+                    "age statistics, top providers, state claim counts, diabetes cost summary, "
+                    "or reimbursement distribution."
+                )
+            }
 
-        if route_name == "inpatient_summary":
-            return self.analytics_engine.inpatient_claim_summary()
-
-        if route_name == "outpatient_summary":
-            return self.analytics_engine.outpatient_claim_summary()
-
-        if route_name == "age_summary":
-            return self.analytics_engine.beneficiary_age_summary()
-
-        if route_name == "top_inpatient_providers":
-            return self.analytics_engine.top_providers_by_claim_count(
-                claim_type="inpatient",
-                top_n=10,
-            ).to_dict(orient="records")
-
-        if route_name == "top_outpatient_providers":
-            return self.analytics_engine.top_providers_by_claim_count(
-                claim_type="outpatient",
-                top_n=10,
-            ).to_dict(orient="records")
-
-        if route_name == "inpatient_claims_by_state":
-            return self.analytics_engine.claim_distribution_by_state(
-                claim_type="inpatient",
-            ).head(10).to_dict(orient="records")
-
-        if route_name == "outpatient_claims_by_state":
-            return self.analytics_engine.claim_distribution_by_state(
-                claim_type="outpatient",
-            ).head(10).to_dict(orient="records")
-
-        if route_name == "diabetes_cost_summary":
-            return self.analytics_engine.average_inpatient_cost_by_chronic_condition(
-                "ChronicCond_Diabetes"
-            ).to_dict(orient="records")
-
-        if route_name == "reimbursement_distribution":
-            inpatient = self.analytics_engine.tables["train_inpatient"]
-
-            return (
-                inpatient[["InscClaimAmtReimbursed"]]
-                .dropna()
-                .to_dict(orient="records")
+        try:
+            result = execute_tool(
+                analytics_engine=self.analytics_engine,
+                tool_name=route_name,
             )
 
-        return {
-            "message": (
-                "This question is not supported by the current analytics routes. "
-                "Try asking about table shapes, inpatient summary, outpatient summary, "
-                "age statistics, top providers, state claim counts, diabetes cost summary, "
-                "or reimbursement distribution."
-            )
-        }
+        except UnknownAnalyticsToolError:
+            return {
+                "message": (
+                    "This question is not supported by the current analytics routes."
+                )
+            }
+
+        if isinstance(result, pd.DataFrame):
+            return result.to_dict(orient="records")
+
+        return result
 
     def _generate_explanation(
         self,

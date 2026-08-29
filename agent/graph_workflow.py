@@ -10,6 +10,10 @@ from agent.chart_router import build_chart_for_route
 from agent.language_utils import normalize_question_for_routing
 from agent.response_formatter import format_response
 from agent.response_generator import ResponseGenerator
+from agent.tool_registry import (
+    UnknownAnalyticsToolError,
+    execute_tool,
+)
 
 
 class HealthcareGraphState(TypedDict, total=False):
@@ -157,54 +161,24 @@ class HealthcareGraphWorkflow:
 
     def _execute_route(self, route: str) -> Any:
         """
-        Execute deterministic analytics based on selected route.
+        Execute deterministic analytics through the approved tool registry.
         """
-        if route == "table_shapes":
-            return self.analytics_engine.get_table_shapes()
+        if route == "fallback":
+            return {
+                "message": (
+                    "This question is not supported by the current analytics routes."
+                )
+            }
 
-        if route == "inpatient_summary":
-            return self.analytics_engine.inpatient_claim_summary()
-
-        if route == "outpatient_summary":
-            return self.analytics_engine.outpatient_claim_summary()
-
-        if route == "age_summary":
-            return self.analytics_engine.beneficiary_age_summary()
-
-        if route == "top_inpatient_providers":
-            return self.analytics_engine.top_providers_by_claim_count(
-                claim_type="inpatient",
-                top_n=10,
+        try:
+            return execute_tool(
+                analytics_engine=self.analytics_engine,
+                tool_name=route,
             )
 
-        if route == "top_outpatient_providers":
-            return self.analytics_engine.top_providers_by_claim_count(
-                claim_type="outpatient",
-                top_n=10,
-            )
-
-        if route == "inpatient_claims_by_state":
-            return self.analytics_engine.claim_distribution_by_state(
-                claim_type="inpatient",
-            ).head(10)
-
-        if route == "outpatient_claims_by_state":
-            return self.analytics_engine.claim_distribution_by_state(
-                claim_type="outpatient",
-            ).head(10)
-
-        if route == "diabetes_cost_summary":
-            return self.analytics_engine.average_inpatient_cost_by_chronic_condition(
-                "ChronicCond_Diabetes"
-            )
-
-        if route == "reimbursement_distribution":
-            inpatient = self.analytics_engine.tables["train_inpatient"]
-
-            return inpatient[["InscClaimAmtReimbursed"]].dropna()
-
-        return {
-            "message": (
-                "This question is not supported by the current analytics routes."
-            )
-        }
+        except UnknownAnalyticsToolError:
+            return {
+                "message": (
+                    "This question is not supported by the current analytics routes."
+                )
+            }
