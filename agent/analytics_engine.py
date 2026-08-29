@@ -254,6 +254,23 @@ class HealthcareAnalyticsEngine:
 
         return result.sort_values("DiabetesStatus").reset_index(drop=True)
 
+    def inpatient_reimbursement_distribution(self) -> pd.DataFrame:
+        """
+        Return non-missing inpatient reimbursement values for distribution analysis.
+        """
+        inpatient = self.tables["train_inpatient"]
+
+        if "InscClaimAmtReimbursed" not in inpatient.columns:
+            raise ValueError(
+                "InscClaimAmtReimbursed column not found in train_inpatient."
+            )
+
+        return (
+            inpatient[["InscClaimAmtReimbursed"]]
+            .dropna()
+            .reset_index(drop=True)
+        )
+
     def claim_distribution_by_state(
         self,
         claim_type: str = "inpatient",
