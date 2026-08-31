@@ -5,7 +5,7 @@ PERSONAS = {
                 "Explore provider utilization, claim volume, and reimbursement patterns."
             ),
             "examples": [
-                "Show top inpatient providers",
+                "Compare inpatient and outpatient provider activity",
                 "Show inpatient claims by state",
                 "Show reimbursement distribution",
             ],
@@ -15,7 +15,7 @@ PERSONAS = {
                 "Review provider concentration, unusual claim volume, and reimbursement patterns."
             ),
             "examples": [
-                "Show top outpatient providers",
+                "Compare inpatient and outpatient provider activity",
                 "Show reimbursement distribution",
                 "What is the diabetes cost summary?",
             ],
@@ -26,7 +26,7 @@ PERSONAS = {
             ),
             "examples": [
                 "What is the average beneficiary age?",
-                "Show inpatient claims by state",
+                "Compare inpatient and outpatient claims by state",
                 "Show outpatient claims by state",
             ],
         },
@@ -37,7 +37,7 @@ PERSONAS = {
                 "Untersucht Provider-Auslastung, Claim-Volumen und Erstattungsmuster."
             ),
             "examples": [
-                "Zeige die wichtigsten stationären Provider",
+                "Vergleiche stationäre und ambulante Provider",
                 "Zeige stationäre Claims nach Bundesstaat",
                 "Zeige die Verteilung der Erstattungsbeträge",
             ],
@@ -47,7 +47,7 @@ PERSONAS = {
                 "Analysiert Provider-Konzentration, ungewöhnliches Claim-Volumen und Erstattungsmuster."
             ),
             "examples": [
-                "Zeige die wichtigsten ambulanten Provider",
+                "Vergleiche stationäre und ambulante Provider",
                 "Zeige die Verteilung der Erstattungsbeträge",
                 "Wie sieht die Kostenzusammenfassung für Diabetes aus?",
             ],
@@ -58,7 +58,7 @@ PERSONAS = {
             ),
             "examples": [
                 "Wie hoch ist das durchschnittliche Alter der Beneficiaries?",
-                "Zeige stationäre Claims nach Bundesstaat",
+                "Vergleiche stationäre und ambulante Claims nach Bundesstaaten",
                 "Zeige ambulante Claims nach Bundesstaat",
             ],
         },
