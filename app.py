@@ -174,24 +174,88 @@ def create_empty_question_chart(language: str) -> go.Figure:
     return fig
 
 
-def respond(question: str, language: str) -> tuple[str, go.Figure]:
+def format_workflow_status(
+    steps_completed: int,
+    language: str,
+) -> str:
     """
-    Submit a user question to the LangGraph workflow and return text + chart output.
+    Return a concise user-facing workflow status without exposing planner internals.
+    """
+    if language == "Deutsch":
+        if steps_completed <= 0:
+            return "**Analytischer Workflow:** Keine Analyse-Tools ausgeführt."
+
+        if steps_completed == 1:
+            return (
+                "**Analytischer Workflow:** Einzelschritt · "
+                "1 genehmigtes Tool ausgeführt."
+            )
+
+        return (
+            f"**Analytischer Workflow:** Mehrschritt · "
+            f"{steps_completed} genehmigte Tools ausgeführt."
+        )
+
+    if steps_completed <= 0:
+        return "**Analytical workflow:** No analytics tools executed."
+
+    if steps_completed == 1:
+        return "**Analytical workflow:** Single-step · 1 approved tool executed."
+
+    return (
+        f"**Analytical workflow:** Multi-step · "
+        f"{steps_completed} approved tools executed."
+    )
+
+
+def clear_outputs() -> tuple[str, str, str, None]:
+    """
+    Clear the question, workflow status, text response, and chart output.
+    """
+    return (
+        "",
+        "**Analytical workflow / Analytischer Workflow:** Ready / Bereit",
+        "",
+        None,
+    )
+
+
+def respond(question: str, language: str) -> tuple[str, str, go.Figure]:
+    """
+    Submit a user question to the LangGraph workflow and return
+    workflow status + text response + chart output.
     """
     if not question or not question.strip():
+        workflow_status = format_workflow_status(
+            steps_completed=0,
+            language=language,
+        )
+
         if language == "Deutsch":
             return (
+                workflow_status,
                 "Bitte geben Sie eine Frage zur Healthcare-Analyse ein.",
                 create_empty_question_chart(language),
             )
 
         return (
+            workflow_status,
             "Please enter a healthcare analytics question.",
             create_empty_question_chart(language),
         )
 
     result = GRAPH_WORKFLOW.invoke(
         question=question,
+        language=language,
+    )
+
+    steps_completed = result.get(
+        "steps_completed",
+        0,
+    )
+
+    workflow_status = format_workflow_status(
+        steps_completed=steps_completed,
         language=language,
     )
 
@@ -212,7 +276,11 @@ def respond(question: str, language: str) -> tuple[str, go.Figure]:
             )
         )
 
-    return text_response, chart
+    return (
+        workflow_status,
+        text_response,
+        chart,
+    )
 
 
 DEFAULT_LANGUAGE = "English"
@@ -282,9 +350,13 @@ with gr.Blocks(title="Medical Insight Explorer Agent") as demo:
         )
         clear_button = gr.Button("Clear / Zurücksetzen")
 
+    workflow_output = gr.Markdown(
+        "**Analytical workflow / Analytischer Workflow:** Ready / Bereit"
+    )
+
     response_output = gr.Textbox(
         label="Agent response / Antwort des Agenten",
-        lines=24,
+        lines=32,
     )
 
     chart_output = gr.Plot(
@@ -352,16 +424,18 @@ with gr.Blocks(title="Medical Insight Explorer Agent") as demo:
             language_input,
         ],
         outputs=[
+            workflow_output,
             response_output,
             chart_output,
         ],
     )
 
     clear_button.click(
-        fn=lambda: ("", "", None),
+        fn=clear_outputs,
         inputs=[],
         outputs=[
             question_input,
+            workflow_output,
             response_output,
             chart_output,
         ],
