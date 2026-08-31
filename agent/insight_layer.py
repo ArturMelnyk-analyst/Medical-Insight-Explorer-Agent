@@ -90,3 +90,118 @@ def build_analytical_insight(route: str, language: str) -> str:
         route,
         "No additional analytical interpretation is available for this route yet.",
     )
+
+
+def get_multi_step_workflow_name(
+    tool_results: list[dict],
+) -> str | None:
+    """
+    Identify a supported multi-step workflow from executed tool names.
+
+    The executed tool sequence is used as the stable workflow identifier so
+    English and German prompts that produce the same approved plan receive the
+    same deterministic analytical interpretation.
+    """
+    tool_names = [
+        item.get("tool")
+        for item in tool_results
+    ]
+
+    if tool_names == [
+        "top_inpatient_providers",
+        "top_outpatient_providers",
+    ]:
+        return "provider_activity_comparison"
+
+    if tool_names == [
+        "inpatient_claims_by_state",
+        "outpatient_claims_by_state",
+    ]:
+        return "claims_by_state_comparison"
+
+    if tool_names == [
+        "inpatient_summary",
+        "outpatient_summary",
+    ]:
+        return "claim_summary_comparison"
+
+    return None
+
+
+def build_multi_step_analytical_insight(
+    tool_results: list[dict],
+    language: str,
+) -> str:
+    """
+    Return cautious deterministic interpretation for supported multi-step workflows.
+
+    This helper recognizes only approved compound workflows from the controlled
+    analytics planner. It does not inspect DataFrame contents or calculate new
+    statistics; it only maps executed approved tool sequences to predefined,
+    descriptive, non-causal interpretation.
+    """
+    workflow_name = get_multi_step_workflow_name(
+        tool_results
+    )
+
+    if language == "Deutsch":
+        if workflow_name == "provider_activity_comparison":
+            return (
+                "Die stationären und ambulanten Rankings zeigen, bei welchen Providern "
+                "sich die Claim-Aktivität innerhalb der jeweiligen Versorgungsbereiche "
+                "konzentriert. Unterschiede zwischen den Rankings beschreiben nur "
+                "Nutzungsmuster und sind kein Nachweis für Fraud, Provider-Qualität "
+                "oder Kausalität."
+            )
+
+        if workflow_name == "claims_by_state_comparison":
+            return (
+                "Die stationären und ambulanten Bundesstaat-Rankings zeigen, wie sich "
+                "das Claim-Volumen geografisch zwischen den beiden Versorgungsbereichen "
+                "unterscheidet. Unterschiede können mit Nutzung, Bevölkerung, "
+                "Provider-Verfügbarkeit oder Datenabdeckung zusammenhängen und sollten "
+                "nicht kausal interpretiert werden."
+            )
+
+        if workflow_name == "claim_summary_comparison":
+            return (
+                "Die beiden Zusammenfassungen ermöglichen einen direkten Vergleich "
+                "von stationärem und ambulantem Claim-Volumen, Beneficiary-Abdeckung, "
+                "Provider-Abdeckung und Erstattungsumfang. Der Vergleich ist "
+                "deskriptiv und basiert auf dem verfügbaren Claims-Datensatz."
+            )
+
+        return (
+            "Mehrere genehmigte Analyse-Tools wurden ausgeführt. "
+            "Die Ergebnisse sollten deskriptiv und nicht kausal interpretiert werden."
+        )
+
+    if workflow_name == "provider_activity_comparison":
+        return (
+            "The inpatient and outpatient rankings show where claim activity "
+            "is concentrated within each care setting. Differences between the "
+            "rankings describe utilization patterns only and should not be "
+            "interpreted as evidence of fraud, provider quality, or causality."
+        )
+
+    if workflow_name == "claims_by_state_comparison":
+        return (
+            "The inpatient and outpatient state rankings show how claim volume "
+            "varies geographically across the two care settings. Differences may "
+            "reflect utilization, population, provider availability, or dataset "
+            "coverage and should not be interpreted causally."
+        )
+
+    if workflow_name == "claim_summary_comparison":
+        return (
+            "The two summaries provide a side-by-side view of inpatient and "
+            "outpatient claim volume, beneficiary coverage, provider coverage, "
+            "and reimbursement scale. The comparison is descriptive and reflects "
+            "the available claims dataset."
+        )
+
+    return (
+        "Multiple approved analytics tools were executed. "
+        "The results should be interpreted descriptively and not causally."
+    )
+

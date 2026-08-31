@@ -2,7 +2,11 @@ from typing import Any
 
 import pandas as pd
 
-from agent.insight_layer import build_analytical_insight
+from agent.insight_layer import (
+    build_analytical_insight,
+    build_multi_step_analytical_insight,
+    get_multi_step_workflow_name,
+)
 
 
 def format_computed_result(
@@ -146,15 +150,340 @@ def build_german_summary(route: str, computed_result: Any) -> str:
 
     return "Die ausgewählte Analyse-Route wurde mit deterministischer Berechnung ausgeführt."
 
+def describe_analytics_step(
+    tool_name: str,
+    language: str,
+) -> str:
+    """
+    Return a user-facing description of one executed approved analytics tool.
+
+    Internal registry identifiers are intentionally translated into readable
+    descriptions so the response exposes executed analytical operations without
+    exposing implementation-oriented tool names.
+    """
+    if language == "Deutsch":
+        descriptions = {
+            "top_inpatient_providers": (
+                "Stationäre Provider wurden nach Claim-Anzahl gerankt."
+            ),
+            "top_outpatient_providers": (
+                "Ambulante Provider wurden nach Claim-Anzahl gerankt."
+            ),
+            "inpatient_claims_by_state": (
+                "Stationäre Claims wurden nach Bundesstaat gruppiert und gerankt."
+            ),
+            "outpatient_claims_by_state": (
+                "Ambulante Claims wurden nach Bundesstaat gruppiert und gerankt."
+            ),
+            "inpatient_summary": (
+                "Die genehmigte Zusammenfassung der stationären Claims wurde berechnet."
+            ),
+            "outpatient_summary": (
+                "Die genehmigte Zusammenfassung der ambulanten Claims wurde berechnet."
+            ),
+        }
+
+        return descriptions.get(
+            tool_name,
+            "Ein genehmigter Analyseschritt wurde ausgeführt.",
+        )
+
+    descriptions = {
+        "top_inpatient_providers": (
+            "Ranked inpatient providers by claim count."
+        ),
+        "top_outpatient_providers": (
+            "Ranked outpatient providers by claim count."
+        ),
+        "inpatient_claims_by_state": (
+            "Grouped and ranked inpatient claims by beneficiary state."
+        ),
+        "outpatient_claims_by_state": (
+            "Grouped and ranked outpatient claims by beneficiary state."
+        ),
+        "inpatient_summary": (
+            "Calculated the approved inpatient claim summary."
+        ),
+        "outpatient_summary": (
+            "Calculated the approved outpatient claim summary."
+        ),
+    }
+
+    return descriptions.get(
+        tool_name,
+        "Executed an approved analytics step.",
+    )
+
+
+def get_result_title(
+    tool_name: str,
+    language: str,
+) -> str:
+    """
+    Return a human-readable title for one computed multi-step result.
+    """
+    if language == "Deutsch":
+        titles = {
+            "top_inpatient_providers": "Top stationäre Provider",
+            "top_outpatient_providers": "Top ambulante Provider",
+            "inpatient_claims_by_state": "Stationäre Claims nach Bundesstaat",
+            "outpatient_claims_by_state": "Ambulante Claims nach Bundesstaat",
+            "inpatient_summary": "Zusammenfassung stationärer Claims",
+            "outpatient_summary": "Zusammenfassung ambulanter Claims",
+        }
+
+        return titles.get(
+            tool_name,
+            "Analyseergebnis",
+        )
+
+    titles = {
+        "top_inpatient_providers": "Top inpatient providers",
+        "top_outpatient_providers": "Top outpatient providers",
+        "inpatient_claims_by_state": "Inpatient claims by state",
+        "outpatient_claims_by_state": "Outpatient claims by state",
+        "inpatient_summary": "Inpatient claim summary",
+        "outpatient_summary": "Outpatient claim summary",
+    }
+
+    return titles.get(
+        tool_name,
+        "Analytics result",
+    )
+
+
+def format_multi_step_results(
+    tool_results: list[dict[str, Any]],
+    language: str,
+) -> str:
+    """
+    Format each already-computed multi-step result using existing result formatting.
+
+    This helper performs presentation only. It does not calculate, aggregate,
+    join, or otherwise alter deterministic analytics results.
+    """
+    sections: list[str] = []
+
+    for item in tool_results:
+        tool_name = item["tool"]
+        result = item["result"]
+
+        title = get_result_title(
+            tool_name=tool_name,
+            language=language,
+        )
+
+        formatted = format_computed_result(
+            computed_result=result,
+            route=tool_name,
+            language=language,
+        )
+
+        sections.append(
+            f"{title}:\n{formatted}"
+        )
+
+    return "\n\n".join(sections)
+
+
+def build_multi_step_summary(
+    tool_results: list[dict[str, Any]],
+    language: str,
+) -> str:
+    """
+    Return a deterministic summary for an approved multi-step workflow.
+    """
+    workflow_name = get_multi_step_workflow_name(
+        tool_results
+    )
+
+    if language == "Deutsch":
+        if workflow_name == "provider_activity_comparison":
+            return (
+                "Die Aktivität stationärer und ambulanter Provider wurde mit zwei "
+                "genehmigten deterministischen Analyse-Tools verglichen."
+            )
+
+        if workflow_name == "claims_by_state_comparison":
+            return (
+                "Die stationären und ambulanten Claim-Verteilungen nach Bundesstaat "
+                "wurden mit zwei genehmigten deterministischen Analyse-Tools verglichen."
+            )
+
+        if workflow_name == "claim_summary_comparison":
+            return (
+                "Die Zusammenfassungen stationärer und ambulanter Claims wurden mit "
+                "zwei genehmigten deterministischen Analyse-Tools direkt verglichen."
+            )
+
+        return (
+            "Mehrere genehmigte deterministische Analyseergebnisse wurden kombiniert."
+        )
+
+    if workflow_name == "provider_activity_comparison":
+        return (
+            "Inpatient and outpatient provider activity were compared using two "
+            "approved deterministic analytics tools."
+        )
+
+    if workflow_name == "claims_by_state_comparison":
+        return (
+            "Inpatient and outpatient claim distributions by state were compared "
+            "using two approved deterministic analytics tools."
+        )
+
+    if workflow_name == "claim_summary_comparison":
+        return (
+            "Inpatient and outpatient claim summaries were compared side by side "
+            "using two approved deterministic analytics tools."
+        )
+
+    return (
+        "Multiple approved deterministic analytics results were combined."
+    )
+
+
+def format_analytical_steps(
+    tool_results: list[dict[str, Any]],
+    language: str,
+) -> str:
+    """
+    Format the executed analytical operations as a numbered user-facing list.
+    """
+    steps: list[str] = []
+
+    for index, item in enumerate(
+        tool_results,
+        start=1,
+    ):
+        description = describe_analytics_step(
+            tool_name=item["tool"],
+            language=language,
+        )
+
+        steps.append(
+            f"{index}. {description}"
+        )
+
+    return "\n".join(steps)
+
+
+def build_workflow_summary(
+    steps_completed: int,
+    language: str,
+) -> str:
+    """
+    Return a concise label describing bounded analytics execution.
+    """
+    if language == "Deutsch":
+        if steps_completed <= 0:
+            return "Keine genehmigten Analyse-Tools ausgeführt."
+
+        if steps_completed == 1:
+            return "Einzelschritt-Analyse — 1 genehmigtes Tool ausgeführt."
+
+        return (
+            f"Mehrschritt-Analyse — {steps_completed} genehmigte Tools ausgeführt."
+        )
+
+    if steps_completed <= 0:
+        return "No approved analytics tools executed."
+
+    if steps_completed == 1:
+        return "Single-step analysis — 1 approved tool executed."
+
+    tool_word = "tool" if steps_completed == 1 else "tools"
+
+    return (
+        f"Multi-step analysis — {steps_completed} approved {tool_word} executed."
+    )
+
 
 def format_response(
     route: str,
     computed_result: Any,
     language: str,
+    tool_results: list[dict[str, Any]] | None = None,
+    steps_completed: int = 0,
 ) -> str:
     """
     Format final user-facing response in English or German.
+
+    Existing single-step output remains unchanged. Multi-step output is enabled
+    only when more than one executed result object is available.
     """
+    tool_results = tool_results or []
+
+    is_multi_step = (
+        len(tool_results) > 1
+    )
+
+    if is_multi_step:
+        summary = build_multi_step_summary(
+            tool_results=tool_results,
+            language=language,
+        )
+
+        workflow = build_workflow_summary(
+            steps_completed=steps_completed,
+            language=language,
+        )
+
+        steps = format_analytical_steps(
+            tool_results=tool_results,
+            language=language,
+        )
+
+        insight = build_multi_step_analytical_insight(
+            tool_results=tool_results,
+            language=language,
+        )
+
+        formatted_results = format_multi_step_results(
+            tool_results=tool_results,
+            language=language,
+        )
+
+        if language == "Deutsch":
+            return (
+                f"Zusammenfassung:\n"
+                f"{summary}\n\n"
+                f"Analytischer Workflow:\n"
+                f"{workflow}\n\n"
+                f"Analyseschritte:\n"
+                f"{steps}\n\n"
+                f"Analytische Einordnung:\n"
+                f"{insight}\n\n"
+                f"Berechnete Ergebnisse:\n"
+                f"{formatted_results}\n\n"
+                f"Methodischer Hinweis:\n"
+                f"Diese Antwort kombiniert deterministische pandas-Berechnungen "
+                f"aus genehmigten Healthcare-Analyse-Tools.\n\n"
+                f"Sicherheitshinweis:\n"
+                f"Dies ist Claims-Analytik und keine Diagnose, Behandlungsberatung, "
+                f"Fraud-Feststellung oder klinische Empfehlung."
+            )
+
+        return (
+            f"Summary:\n"
+            f"{summary}\n\n"
+            f"Analytical workflow:\n"
+            f"{workflow}\n\n"
+            f"Analytical steps:\n"
+            f"{steps}\n\n"
+            f"Analytical insight:\n"
+            f"{insight}\n\n"
+            f"Computed results:\n"
+            f"{formatted_results}\n\n"
+            f"Method note:\n"
+            f"This response combines deterministic pandas computations "
+            f"from approved healthcare analytics tools.\n\n"
+            f"Safety note:\n"
+            f"This is claims analytics only and does not provide diagnosis, "
+            f"treatment advice, fraud determination, or clinical recommendations."
+        )
+
+    # Existing single-step behavior is intentionally preserved below.
     formatted_result = format_computed_result(
         computed_result=computed_result,
         route=route,
@@ -198,3 +527,4 @@ def format_response(
         f"This is claims analytics only and does not provide diagnosis, "
         f"treatment advice, or clinical recommendations."
     )
+
