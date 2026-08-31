@@ -280,10 +280,22 @@ class HealthcareGraphWorkflow:
         route = state.get("route", "fallback")
         computed_result = state.get("computed_result")
 
+        tool_results = state.get(
+            "tool_results",
+            [],
+        )
+
+        steps_completed = state.get(
+            "steps_completed",
+            0,
+        )
+
         text_response = format_response(
             route=route,
             computed_result=computed_result,
             language=language,
+            tool_results=tool_results,
+            steps_completed=steps_completed,
         )
 
         return {
