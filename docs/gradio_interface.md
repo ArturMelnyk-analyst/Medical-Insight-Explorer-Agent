@@ -1,126 +1,277 @@
 # Gradio Interface
 
-
 ## Purpose
 
-The Gradio interface provides an interactive front end for the Medical Insight Explorer Agent.
+The Gradio interface provides the interactive front end for **Medical Insight Explorer Agent v1.2.0**.
 
-It allows users to ask natural-language healthcare analytics questions and receive:
+Users can:
 
-- grounded text responses
-- deterministic analytical results
-- optional Plotly visualizations
+- ask supported healthcare claims questions
+- switch between English and German
+- select stakeholder personas
+- run single-step and supported multi-step analytics
+- review deterministic analytical results and insights
+- inspect Plotly visualizations when available
+- see whether one or multiple approved analytics tools were executed
 
-## Architecture
+---
 
+## Interface Flow
+
+The deployed application follows this user-facing flow:
 
 ```text
 User question
-      ↓
+        ↓
 Gradio interface
-      ↓
-Stakeholder persona guidance
-      ↓
-LangGraph workflow
-      ↓
-HealthcareAnalyticsEngine
-      ↓
-Analytical insight layer
-      ↓
-Text response + optional Plotly chart
+        ↓
+Language normalization
+        ↓
+Controlled analytics planning
+        ↓
+Approved analytics execution
+        ↓
+Response + analytical insight
+        ↓
+Primary Plotly visualization
+        ↓
+Gradio output
 ```
 
-## Supported Questions
+Detailed orchestration behavior is documented in [LangGraph Orchestration](langgraph_orchestration.md).
 
-Current examples include:
+---
+
+## Language Selection
+
+The interface supports:
+
+- **English**
+- **Deutsch**
+
+Changing the language updates the relevant user-facing content, including:
+
+- persona descriptions
+- recommended questions
+- response presentation
+- analytical step descriptions
+- workflow status
+- method and safety notes
+
+German questions are normalized into the same language-independent analytical capabilities used for English questions.
+
+---
+
+## Stakeholder Personas
+
+The interface provides three stakeholder perspectives:
+
+- **Hospital Operations Analyst**
+- **Healthcare Fraud Investigator**
+- **Healthcare Policy Researcher**
+
+Selecting a persona updates its description and recommended questions.
+
+Persona examples include both single-step questions and supported multi-step comparisons.
+
+Personas guide the user experience but do not change analytical calculations, tool permissions, or safety boundaries.
+
+---
+
+## Single-Step Analytics
+
+Existing single-step questions remain supported.
+
+Examples include:
 
 ```text
 Show me the shape of all tables
+
 Give me an inpatient summary
+
 Give me an outpatient summary
+
 What is the average beneficiary age?
+
 Show top inpatient providers
+
 Show top outpatient providers
+
 Show inpatient claims by state
+
+Show outpatient claims by state
+
 What is the diabetes cost summary?
+
 Show reimbursement distribution
 ```
 
+A supported single-step request executes one approved analytics tool.
+
+---
+
+## Multi-Step Analytics
+
+Version v1.2.0 adds controlled multi-step questions for selected comparisons.
+
+Supported compound workflows include:
+
+```text
+Compare inpatient and outpatient provider activity
+
+Compare inpatient and outpatient claims by state
+
+Compare inpatient and outpatient claim summaries
+```
+
+Equivalent supported German questions use the same analytical workflows.
+
+For multi-step requests, the interface presents the results from all executed analytical operations in one combined response.
+
+---
+
+## Workflow Indicator
+
+The interface displays the analytical workflow status so users can distinguish between:
+
+```text
+Single-step
+→ one approved analytics tool executed
+```
+
+and:
+
+```text
+Multi-step
+→ multiple approved analytics tools executed
+```
+
+Unsupported or rejected requests execute no analytics tools.
+
+The indicator exposes executed analytical operations, not private reasoning or chain-of-thought.
+
+---
+
+## Response Presentation
+
+Single-step responses preserve the existing concise analytical format.
+
+Supported multi-step responses can include:
+
+- summary
+- analytical workflow
+- analytical steps
+- analytical insight
+- computed results from each executed tool
+- method note
+- safety note
+
+The response area is sized to accommodate the longer multi-result format.
+
+All numerical healthcare metrics originate from deterministic analytics functions.
+
+---
+
 ## Visualization Behavior
 
-Some questions are best answered as text summaries, while others produce charts.
+Supported analytical routes can produce Plotly charts, including:
 
-Text-only examples:
-
-- table shapes
-- inpatient summary
-- outpatient summary
-- beneficiary age summary
-
-
-Chart examples:
-
-- top providers by claim count
+- provider rankings
 - claims by state
 - reimbursement distribution
 - diabetes reimbursement comparison
 
-For text-only questions, the app displays a placeholder chart explaining that no visualization was generated.
+Other analytical routes, such as table shapes and claim summaries, are primarily text-based.
 
+### Multi-Step Visualization
 
-## Bilingual Interface
+Multi-step workflows intentionally retain **one primary visualization**.
 
-The Gradio interface supports English and German user-facing text.
+```text
+all executed results
+→ textual response
 
-Current bilingual elements include:
+primary analytical route
+→ Plotly chart
+```
 
-- language selector
-- example prompts
-- response summaries
-- method notes
-- safety notes
-- visualization placeholder messages
+Multiple simultaneous charts are outside the current v1.2.0 interface scope.
 
-The backend analytics routes remain deterministic and language-independent. German prompts are normalized into supported deterministic analytics routes before computation.
+For visualization details, see [Visualization Tools](visualization_tools.md).
 
-This design keeps the analytics engine stable while improving usability for German-speaking reviewers.
+---
 
-## Stakeholder Persona Selector
+## Guided Questions
 
-The Gradio interface includes a stakeholder persona selector.
+Recommended questions are presented as clickable interface examples.
 
-Selecting a persona updates:
+They update according to the selected:
 
-- persona description
-- clickable recommended questions
-- guided analytics workflow
+```text
+language + stakeholder persona
+```
 
-This improves reviewer usability by making the app purpose clear for different healthcare stakeholders.
+This allows reviewers to explore supported functionality without needing to know the available analytical routes in advance.
 
+The user can also enter a supported question manually.
+
+---
 
 ## Data Source
 
-The app first looks for full local processed data under:
+The application can use full processed data locally from:
 
 ```text
 data/processed/
 ```
 
-If full data is unavailable, it can fall back to:
-
+and lightweight sample data from:
 
 ```text
 data/sample/
 ```
 
-## Current Scope
+The public Hugging Face deployment uses the lightweight sample-data path.
 
-This PR creates the first local interactive UI layer.
+For details, see [Deployment Guide](deployment.md).
 
-It does not yet include:
+---
 
-- Hugging Face deployment
-- packaged sample data
-- advanced chart routing
-- live LLM API responses
+## Controlled Scope
 
+The interface provides access to approved descriptive healthcare claims analytics.
+
+It does not provide unrestricted execution of:
+
+- Python
+- SQL
+- pandas operations
+- arbitrary analytics-engine methods
+
+Unsupported and causal medical requests use controlled handling rather than unrestricted analytical execution.
+
+For complete boundaries, see [Limitations](limitations.md).
+
+---
+
+## Summary
+
+The v1.2.0 interface combines:
+
+```text
+bilingual interaction
+        +
+stakeholder guidance
+        +
+single-step analytics
+        +
+bounded multi-step analytics
+        +
+workflow transparency
+        +
+deterministic results
+        +
+controlled visualization
+```
+
+Gradio provides the user-facing layer while analytical computation, planning, and execution remain separated into dedicated backend components.

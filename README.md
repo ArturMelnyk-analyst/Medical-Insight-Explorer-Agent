@@ -2,303 +2,501 @@
 
 [![Hugging Face Spaces](https://img.shields.io/badge/HuggingFace-LiveDemo-yellow?logo=huggingface)](https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent)
 
-Bilingual conversational healthcare analytics powered by deterministic computation and LangGraph orchestration.
+**v1.2.0 — Controlled Multi-Step Analytics Orchestration**
+
+A bilingual English/German healthcare claims analytics agent combining deterministic pandas analytics, an allowlisted tool registry, bounded multi-step planning, LangGraph orchestration, Plotly visualizations, and a Gradio interface.
 
 ---
 
-## Project Overview
+## Overview
 
-Medical Insight Explorer Agent is a bilingual English/German conversational analytics system for cleaned Medicare healthcare claims data.
+**Medical Insight Explorer Agent** provides a conversational interface for exploring cleaned Medicare healthcare claims data.
 
-The project allows users to ask natural-language analytical questions, receive deterministic healthcare summaries, and view Plotly-based visualizations through a Gradio interface.
-
-The main design principle is:
+Instead of giving an AI system unrestricted access to healthcare dataframes, the project uses a controlled analytics architecture:
 
 ```text
-Compute first.
-Explain second.
-Do not let the AI invent healthcare statistics.
+Natural-language question
+        ↓
+Language-aware normalization
+        ↓
+Bounded analytics planning
+        ↓
+Approved analytics tools
+        ↓
+Deterministic pandas computation
+        ↓
+Analytical interpretation
+        ↓
+Response + visualization
 ```
+
+The central design principle is:
+
+```text
+Natural language may choose approved analytics.
+It should not invent the analytics themselves.
+```
+
+All numerical healthcare results originate from predefined deterministic analytics functions.
+
+The application is designed for **descriptive healthcare claims analytics**, not clinical decision-making.
+
+---
+
+## What's New in v1.2.0
+
+Version **v1.2.0** extends the original single-step workflow with controlled multi-step analytical orchestration.
+
+Key additions:
+
+- explicit **allowlisted analytics tool registry**
+- bounded **single-step and multi-step planner**
+- maximum of **three approved analytics executions per plan**
+- English/German compound-question normalization
+- language-aware rejection of causal medical requests
+- sequential LangGraph tool execution
+- multi-result response synthesis
+- deterministic multi-step analytical insight
+- visible **Single-step / Multi-step** workflow status
+- persona-guided compound analytical questions
+- one primary visualization with all executed results retained in text
+
+The release preserves the existing deterministic analytics calculations and controlled single-step behavior.
+
+---
+
 ## Business Problem
 
-Healthcare claims datasets are often difficult to explore because they are large, relational, and spread across beneficiary, inpatient, outpatient, and provider-level tables.
+Healthcare claims data is large, relational, and difficult to explore efficiently across beneficiary, inpatient, outpatient, provider, and reimbursement information.
 
-This project demonstrates how an AI-assisted analytics interface can make cleaned healthcare claims data easier to explore while keeping numerical answers grounded in deterministic pandas computations.
+Conversational analytics can make exploration easier, but unrestricted AI-generated analysis introduces risks:
 
-The system is designed for:
+- invented calculations
+- inconsistent dataframe manipulation
+- unsupported healthcare conclusions
+- causal or clinical overinterpretation
 
-- claims utilization analysis
-- provider-level summaries
-- reimbursement pattern exploration
-- chronic-condition segment comparison
-- bilingual analytics presentation for English and German reviewers
+Medical Insight Explorer Agent addresses this by separating **natural-language interaction from numerical computation**.
 
-## Connection to Healthcare-Data-Cleaning
+The planner selects from approved analytical capabilities, while deterministic pandas functions calculate the actual statistics.
 
-This repository consumes cleaned Parquet outputs produced by the companion upstream repository:
+---
 
-`Healthcare-Data-Cleaning`
+## System Architecture
 
-The upstream project performs:
-
-- raw CSV loading
-- data cleaning
-- validation
-- feature engineering
-- relationship checks
-- Parquet export
-
-This project starts from those validated Parquet files instead of repeating raw CSV cleaning.
-
-## Architecture
+The project is downstream from the companion **Healthcare-Data-Cleaning** pipeline:
 
 ```text
-Raw Kaggle CSV files
+Raw healthcare CSV files
         ↓
-Healthcare-Data-Cleaning repository
+Healthcare-Data-Cleaning
         ↓
-Cleaned validated Parquet tables
-        ↓
-Medical Insight Explorer Agent
+Cleaned + validated Parquet tables
         ↓
 HealthcareDataLoader
         ↓
 HealthcareAnalyticsEngine
+        ↑
+Approved Analytics Tool Registry
+        ↑
+Controlled Analytics Planner
+        ↑
+Language-aware normalization
+        ↑
+User question / Gradio interface
+
+HealthcareAnalyticsEngine
         ↓
-Visualization tools
+Deterministic analytical results
         ↓
-ResponseGenerator
+Response + Insight + Chart layers
         ↓
-LangGraph workflow
+Bilingual Gradio output
         ↓
-Bilingual Gradio interface
+Local application / Hugging Face Spaces
 ```
 
-The system separates data loading, analytics, visualization, response generation, and user interface logic into independent modules.
-
-## Data Inputs
-
-Expected local input files:
+This creates a clear separation between:
 
 ```text
-data/processed/train_beneficiary_clean.parquet
-data/processed/test_beneficiary_clean.parquet
-data/processed/train_inpatient_clean.parquet
-data/processed/test_inpatient_clean.parquet
-data/processed/train_outpatient_clean.parquet
-data/processed/test_outpatient_clean.parquet
-data/processed/train_labels_clean.parquet
-data/processed/test_labels_clean.parquet
+DATA ENGINEERING
+        ↓
+DETERMINISTIC ANALYTICS
+        ↓
+CONTROLLED ORCHESTRATION
+        ↓
+PRESENTATION
 ```
 
-Full processed data files are excluded from GitHub and must be generated locally from the upstream project.
+Detailed architecture:
 
-The app can also fall back to:
+- [System Architecture](docs/architecture.md)
+- [LangGraph Orchestration](docs/langgraph_orchestration.md)
+
+---
+
+## Controlled Analytics
+
+### Approved Tool Registry
+
+Controller-facing analytics are defined through an explicit allowlist in:
 
 ```text
-data/sample/
+agent/tool_registry.py
 ```
 
-for future lightweight demo deployment.
+The registry currently exposes ten approved analytical capabilities:
 
-## Features
+| Tool | Analysis |
+|---|---|
+| `table_shapes` | Loaded table dimensions |
+| `inpatient_summary` | Inpatient claim summary |
+| `outpatient_summary` | Outpatient claim summary |
+| `age_summary` | Beneficiary age summary |
+| `top_inpatient_providers` | Top inpatient providers |
+| `top_outpatient_providers` | Top outpatient providers |
+| `inpatient_claims_by_state` | Inpatient claims by state |
+| `outpatient_claims_by_state` | Outpatient claims by state |
+| `diabetes_cost_summary` | Reimbursement by diabetes status |
+| `reimbursement_distribution` | Inpatient reimbursement distribution |
 
-Current project features include:
+The planner cannot select arbitrary analytics-engine methods, dataframe operations, Python, SQL, or pandas expressions.
 
-- relational Parquet table loading
-- deterministic pandas-based analytics engine
-- controlled response-generation layer
-- Plotly visualization tools
-- English/German Gradio interface
-- bilingual example prompts
-- human-readable summaries
-- localized method and safety notes
-- placeholder visualization messaging for text-only questions
-- local processed-data loading with future sample-data fallback
-- LangGraph-based workflow orchestration
-- Hugging Face deployment with sample-data fallback
-- modular response and chart helper architecture
-- Stakeholder persona selector
-- Persona-specific recommended questions
-- Clickable guided analytics prompts
-- Deterministic analytical insight layer
+---
+
+## Bounded Multi-Step Analytics
+
+Simple questions use one approved tool whenever one tool is sufficient.
+
+```text
+Show top inpatient providers
+        ↓
+top_inpatient_providers
+```
+
+Supported compound questions can produce multi-tool plans.
+
+For example:
+
+```text
+Compare inpatient and outpatient provider activity
+        ↓
+top_inpatient_providers
+        +
+top_outpatient_providers
+```
+
+The current release supports three compound workflows:
+
+| Question | Approved tools |
+|---|---|
+| Compare inpatient and outpatient provider activity | `top_inpatient_providers` + `top_outpatient_providers` |
+| Compare inpatient and outpatient claims by state | `inpatient_claims_by_state` + `outpatient_claims_by_state` |
+| Compare inpatient and outpatient claim summaries | `inpatient_summary` + `outpatient_summary` |
+
+Equivalent supported German questions normalize into the same language-independent analytical plans.
+
+Execution is bounded by:
+
+```text
+MAX_ANALYTICS_STEPS = 3
+```
+
+There is no open-ended autonomous analytics loop.
+
+---
+
+## Multi-Result Responses
+
+For supported compound questions, LangGraph executes the approved tools sequentially and retains every deterministic result.
+
+The response can combine:
+
+```text
+Summary
+Analytical workflow
+Analytical steps
+Analytical insight
+Computed results
+Method note
+Safety note
+```
+
+The interface also exposes execution status such as:
+
+```text
+Single-step · 1 approved tool executed
+```
+
+or:
+
+```text
+Multi-step · 2 approved tools executed
+```
+
+Only analytical operations that were actually executed are displayed.
+
+---
+
+## English + German
+
+The application supports bilingual analytical interaction while keeping the analytics engine language-independent.
+
+```text
+English ──┐
+          │
+German ───┤
+          ↓
+   normalization
+          ↓
+      planner
+          ↓
+ approved tools
+          ↓
+ deterministic
+    analytics
+          ↓
+localized response
+```
+
+The normalization layer also preserves safety-relevant causal wording before planning.
+
+Causal requests are rejected rather than converted into descriptive analytics.
+
+---
 
 ## Stakeholder Personas
 
-The app includes persona-guided healthcare analytics workflows for:
+The interface provides three stakeholder perspectives:
 
-- Hospital Operations Analyst
-- Healthcare Fraud Investigator
-- Healthcare Policy Researcher
+- **Hospital Operations Analyst**
+- **Healthcare Fraud Investigator**
+- **Healthcare Policy Researcher**
 
-Each persona provides a short use-case description and recommended analytical questions.
+Personas provide descriptions, recommended questions, and clickable English/German prompts.
 
-This makes the app easier to understand for healthcare reviewers, recruiters, and hiring managers.
+They guide exploration but do **not** change:
 
+- analytical formulas
+- registry permissions
+- planner execution limits
+- healthcare safety boundaries
+
+---
 
 ## Example Questions
 
-### Supported English examples:
+### English
 
 ```text
-Show me the shape of all tables
-Give me an inpatient summary
-Give me an outpatient summary
-What is the average beneficiary age?
 Show top inpatient providers
-Show top outpatient providers
-Show inpatient claims by state
+
+Show outpatient claims by state
+
 What is the diabetes cost summary?
+
 Show reimbursement distribution
+
+Compare inpatient and outpatient provider activity
+
+Compare inpatient and outpatient claims by state
+
+Compare inpatient and outpatient claim summaries
 ```
 
-### Supported German examples:
+### German
 
 ```text
-Zeige die Form aller Tabellen
-Gib mir eine Zusammenfassung der stationären Claims
-Gib mir eine Zusammenfassung der ambulanten Claims
-Wie hoch ist das durchschnittliche Alter der Beneficiaries?
 Zeige die wichtigsten stationären Provider
-Zeige die wichtigsten ambulanten Provider
-Zeige stationäre Claims nach Bundesstaat
+
+Zeige ambulante Claims nach Bundesstaat
+
 Wie sieht die Kostenzusammenfassung für Diabetes aus?
+
 Zeige die Verteilung der Erstattungsbeträge
+
+Vergleiche stationäre und ambulante Provider
+
+Vergleiche stationäre und ambulante Claims nach Bundesstaaten
+
+Vergleiche die Zusammenfassungen der stationären und ambulanten Claims
 ```
 
-## How It Works
+More examples are available in:
 
-The app follows a controlled analytics workflow:
+[demo/example_prompts.md](demo/example_prompts.md)
+
+---
+
+## Visualization
+
+Plotly visualizations are generated through controlled route-based chart logic.
+
+Visual analyses include:
+
+- provider rankings
+- claims by state
+- diabetes reimbursement comparison
+- inpatient reimbursement distribution
+
+Multi-step workflows currently render **one primary visualization**, while the textual response includes **all executed analytical results**.
+
+This preserves the existing visualization architecture without introducing a separate multi-chart dashboard.
+
+See [Visualization Tools](docs/visualization_tools.md) for implementation details.
+
+---
+
+## Live Demo
+
+A lightweight version is deployed on Hugging Face Spaces:
+
+**[Medical Insight Explorer Agent — Live Demo](https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent)**
+
+The public deployment uses lightweight sample Parquet data while preserving the same core analytical and orchestration architecture.
+
+Deployment details are available in the [Deployment Guide](docs/deployment.md).
+
+---
+
+## Demo
+
+A walkthrough of the application is available here:
+
+![Medical Insight Explorer Walkthrough](demo/demo_walkthrough.gif)
+
+Additional project assets are organized as:
 
 ```text
-User question
-        ↓
-Language-aware question normalization
-        ↓
-Rule-based analytics routing
-        ↓
-Deterministic pandas computation
-        ↓
-Human-readable response formatting
-        ↓
-Optional Plotly visualization
-        ↓
-Gradio interface output
+images/demo/          application and analytics screenshots
+images/architecture/  architecture diagrams
+demo/                 walkthrough and example prompts
 ```
 
-The response layer does not allow the LLM to freely manipulate healthcare dataframes.
+---
 
-All numerical results are computed first through pandas-based analytics functions.
+## Data
 
-## Local Setup
+The project consumes cleaned Parquet outputs produced by the upstream **Healthcare-Data-Cleaning** project.
 
-Clone the repository and install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Place cleaned Parquet files into:
+Full local datasets are expected under:
 
 ```text
 data/processed/
 ```
 
-Run the app locally:
+The public deployment uses:
+
+```text
+data/sample/
+```
+
+Full processed healthcare datasets are excluded from GitHub.
+
+See [Data Contract](docs/data_contract.md) for details.
+
+---
+
+## Local Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ArturMelnyk-analyst/Medical-Insight-Explorer-Agent.git
+cd Medical-Insight-Explorer-Agent
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the application:
 
 ```bash
 python app.py
 ```
 
-The app launches a local Gradio interface in the browser.
-
-## Demo Screenshots
-
-English interface:
-
-![English Demo](images/demo/gradio_app_english.png)
-
-German interface:
-
-![German Demo](images/demo/gradio_app_german.png)
-
-Reimbursement distribution:
-
-![Distribution](images/demo/inpatient_reimbursement_distribution.png)
-
-## Hugging Face Demo
-
-A lightweight live demo is available on Hugging Face Spaces:
-
-[Medical Insight Explorer Agent — Hugging Face Demo](https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent)
-
-The deployed version uses sample Parquet files from `data/sample/` instead of the full local processed dataset.
-
-The app preserves the same deterministic analytics workflow, bilingual English/German interface, and healthcare claims-only safety boundaries.
-
-Deployment details are documented in:
-
-- [Deployment Guide](docs/deployment.md)
-
-## Portfolio Assets
-
-Additional recruiter-facing materials:
-
-- [Presentation PDF](docs/Medical_Insight_Explorer_Presentation.pdf)
-- [Presentation PowerPoint](docs/Medical_Insight_Explorer_Presentation.pptx)
-- [Demo Walkthrough GIF](demo/demo_walkthrough.gif)
-
-Supporting screenshots:
+The Gradio interface will provide a local address, typically:
 
 ```text
-images/portfolio/
+http://127.0.0.1:7860
 ```
 
-Architecture diagrams:
+If full processed data is unavailable, the application can use the configured sample-data fallback.
+
+For detailed instructions, see the [User Guide](docs/user_guide.md).
+
+---
+
+## Safety and Scope
+
+Medical Insight Explorer Agent is a **descriptive healthcare claims analytics system**.
+
+It does not provide:
+
+- medical diagnosis
+- treatment recommendations
+- patient-specific clinical advice
+- clinical decision-making
+- fraud determination
+- causal medical conclusions
+
+The orchestration layer does not permit unrestricted:
 
 ```text
-images/architecture/
+Python
+SQL
+pandas
+dataframe operations
+analytics-engine method selection
+tool execution
 ```
 
-Live Demo:
+Unsupported and causal requests are handled through controlled fallback behavior.
 
-Hugging Face:
+See [Limitations](docs/limitations.md) for the complete scope and known limitations.
 
-https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent
+---
 
-## Documentation
+## Technical Documentation
 
-- [Architecture](docs/architecture.md)
-- [User Guide](docs/user_guide.md)
-- [Limitations](docs/limitations.md)
-- [Example Prompts](demo/example_prompts.md)
-- [Data Contract](docs/data_contract.md)
-- [Analytics Engine](docs/analytics_engine.md)
-- [Visualization Tools](docs/visualization_tools.md)
-- [LLM Response Layer](docs/llm_response_layer.md)
-- [Gradio Interface](docs/gradio_interface.md)
-- [LangGraph Orchestration](docs/langgraph_orchestration.md)
-- [Refactor Notes](docs/refactor_notes.md)
-- [Presentation PDF](docs/Medical_Insight_Explorer_Presentation.pdf)
-- [Presentation PowerPoint](docs/Medical_Insight_Explorer_Presentation.pptx)
+| Document | Purpose |
+|---|---|
+| [Architecture](docs/architecture.md) | Overall system architecture and component boundaries |
+| [LangGraph Orchestration](docs/langgraph_orchestration.md) | Planner, graph state, bounded execution, and multi-result orchestration |
+| [Analytics Engine](docs/analytics_engine.md) | Deterministic healthcare analytics |
+| [LLM Response Layer](docs/llm_response_layer.md) | Controlled response and optional LLM explanation architecture |
+| [Visualization Tools](docs/visualization_tools.md) | Plotly visualization implementation |
+| [Gradio Interface](docs/gradio_interface.md) | User-interface architecture |
+| [Data Contract](docs/data_contract.md) | Input datasets and data expectations |
+| [User Guide](docs/user_guide.md) | Application usage |
+| [Limitations](docs/limitations.md) | Scope and known limitations |
+| [Deployment Guide](docs/deployment.md) | Local and Hugging Face deployment |
+| [Refactor Notes](docs/refactor_notes.md) | Earlier architectural refactoring notes |
+
+---
 
 ## Repository Structure
 
 ```text
 Medical-Insight-Explorer-Agent/
-
+│
 ├── agent/
-│   ├── __init__.py
 │   ├── analytics_engine.py
 │   ├── chart_router.py
 │   ├── data_loader.py
 │   ├── graph_workflow.py
+│   ├── insight_layer.py
 │   ├── language_utils.py
+│   ├── personas.py
+│   ├── planner.py
 │   ├── prompt_templates.py
 │   ├── response_formatter.py
-│   ├── visualization_tools.py
-│   ├── personas.py
-│   └── insight_layer.py
+│   ├── response_generator.py
+│   ├── tool_registry.py
+│   └── visualization_tools.py
 │
 ├── data/
 │   ├── processed/
@@ -309,114 +507,86 @@ Medical-Insight-Explorer-Agent/
 │   └── example_prompts.md
 │
 ├── docs/
-│   ├── analytics_engine.md
 │   ├── architecture.md
-│   ├── data_contract.md
-│   ├── deployment.md
-│   ├── gradio_interface.md
 │   ├── langgraph_orchestration.md
-│   ├── limitations.md
-│   ├── llm_response_layer.md
-│   ├── refactor_notes.md
-│   ├── user_guide.md
+│   ├── analytics_engine.md
 │   ├── visualization_tools.md
-│   ├── Medical_Insight_Explorer_Presentation.pdf
-│   └── Medical_Insight_Explorer_Presentation.pptx
+│   ├── gradio_interface.md
+│   ├── llm_response_layer.md
+│   ├── data_contract.md
+│   ├── user_guide.md
+│   ├── limitations.md
+│   ├── deployment.md
+│   └── ...
 │
 ├── images/
 │   ├── architecture/
-│   │   ├── data_pipeline_architecture.png
-│   │   └── agent_workflow_architecture.png
-│   │
-│   ├── demo/
-│   │   ├── gradio_app_english.png
-│   │   ├── gradio_app_german.png
-│   │   ├── gradio_app_top_inpatient_providers.png
-│   │   ├── inpatient_reimbursement_distribution.png
-│   │   ├── average_inpatient_reimbursement_by_diabetes_indicator.png
-│   │   └── top_10_inpatient_providers_by_claim_count.png
-│   │
-│   └── portfolio/
-│       ├── hf_english_demo.png
-│       ├── hf_german_demo.png
-│       └── github_overview.png
+│   └── demo/
 │
 ├── notebooks/
-│
 ├── scripts/
-│
-├── .env.example
-├── .gitignore
 ├── app.py
-├── LICENSE
-├── README.md
 ├── requirements.txt
-└── runtime.txt
+├── runtime.txt
+└── README.md
 ```
 
-## Data Governance
+---
 
-Raw and full processed healthcare datasets are not committed to GitHub.
+## Portfolio Materials
 
-The project uses local Parquet files generated from the upstream Healthcare-Data-Cleaning pipeline.
+Additional recruiter-facing materials include:
 
-Small sample files may be added later for lightweight demo deployment.
+- [Presentation PDF](docs/Medical_Insight_Explorer_Presentation.pdf)
+- [Presentation PowerPoint](docs/Medical_Insight_Explorer_Presentation.pptx)
+- [Demo Walkthrough](demo/demo_walkthrough.gif)
+- [Example Prompts](demo/example_prompts.md)
+
+Together with the live Hugging Face deployment, these provide both technical and user-facing views of the project.
+
+---
 
 ## Limitations
 
-This project is designed for healthcare claims analytics only.
+The current release is intentionally bounded:
 
-It does not provide:
+- compound-question support is explicitly defined rather than open-ended
+- plans are limited to three approved analytics tools
+- multi-step workflows render one primary chart
+- analytics are descriptive rather than causal
+- the public deployment uses lightweight sample data
+- optional LLM explanation capability is architecturally separate from deterministic computation
 
-- medical diagnosis
-- treatment recommendations
-- clinical decision-making
-- patient-level medical advice
-- causal medical conclusions
+See [Limitations](docs/limitations.md) for the detailed discussion.
 
-The current version supports controlled analytics routes only. Unsupported questions return safe fallback responses.
+---
 
-## Future Improvements
+## Documentation and Release
 
-Planned improvements include:
+**v1.2.0 — Controlled Multi-Step Analytics Orchestration**
 
-- add LangSmith tracing for workflow observability
-- conditional graph routing
-- richer chart routing
-- unit tests
-- optional database-backed analytics layer
-- improve optional LLM response mode
-- add richer user-facing documentation
-
-## Status
-
-The project currently includes:
-
-- cleaned Parquet data loading
-- deterministic analytics engine
-- visualization tools
-- grounded response layer
-- bilingual English/German Gradio interface
-- documentation and recruiter assets
-- architecture diagrams
-- presentation materials
-- bilingual walkthrough demo GIF
-- LangGraph orchestration workflow
-- Hugging Face deployment support
-
-
-## Portfolio Demo Materials
-
-Recruiter-facing presentation and demo assets are available in:
+The release combines:
 
 ```text
-docs/Medical_Insight_Explorer_Presentation.pdf
-docs/Medical_Insight_Explorer_Presentation.pptx
-demo/demo_walkthrough.gif
+deterministic healthcare analytics
++
+allowlisted analytical capabilities
++
+bounded multi-step planning
++
+LangGraph orchestration
++
+bilingual interaction
++
+controlled analytical interpretation
++
+transparent workflow presentation
 ```
 
-The live Hugging Face demo is available here:
+Detailed implementation and design decisions are intentionally kept in the technical documentation rather than duplicated in this README.
 
-```text
-https://huggingface.co/spaces/Artur-Melnyk/Medical-Insight-Explorer-Agent
-```
+---
+
+## License
+
+See [LICENSE](LICENSE) for repository licensing information.

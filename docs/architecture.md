@@ -1,376 +1,683 @@
 # Architecture — Medical Insight Explorer Agent
 
-
-
 ## Purpose
 
+Medical Insight Explorer Agent is a controlled bilingual healthcare claims analytics system built on cleaned Medicare data.
 
+The project connects an upstream data-engineering pipeline with deterministic analytics, bounded analytical planning, LangGraph orchestration, response synthesis, visualization, and a Gradio interface.
 
-The Medical Insight Explorer Agent is designed as a controlled conversational analytics system for cleaned Medicare healthcare claims data.
-
-
-
-The project connects an upstream healthcare data-cleaning pipeline with a downstream analytics and AI-assisted interface.
-
-
-
-The main architectural principle is:
-
-
+The architecture follows four principles:
 
 ```text
-Deterministic computation first.
-
-LLM-style explanation second.
-
-No unsupported medical diagnosis.
+Compute deterministically.
+Select only approved analytics.
+Keep orchestration bounded.
+Do not make unsupported healthcare claims.
 ```
 
+All numerical healthcare results originate from predefined pandas-based analytics functions.
 
+Natural-language components can select and explain approved analytics, but they do not receive unrestricted access to healthcare dataframes.
 
-## System Flow
+---
+
+## System Overview
+
+Medical Insight Explorer Agent is downstream from the companion **Healthcare-Data-Cleaning** repository.
+
+The architecture combines two related paths:
+
+- a **data path**, which supplies cleaned and validated healthcare data to the deterministic analytics engine
+- a **controlled analytical path**, which determines which approved analytics operation should be executed for a supported user question
+
+### Data Path
 
 ```text
-Raw Kaggle CSV files
-      ↓
-Healthcare-Data-Cleaning repository
-      ↓
-Cleaned validated Parquet tables
-      ↓
-Medical Insight Explorer Agent
-      ↓
+Raw healthcare CSV files
+        ↓
+Healthcare-Data-Cleaning
+        ↓
+Cleaned + validated Parquet tables
+        ↓
 HealthcareDataLoader
-      ↓
+        ↓
 HealthcareAnalyticsEngine
-      ↓
-Stakeholder persona context
-      ↓
-LangGraph workflow
-      ↓
-Analytical insight layer
-      ↓
-Response formatter
-      ↓
-Chart router
-      ↓
-Bilingual Gradio / Hugging Face interface
 ```
+
+The upstream **Healthcare-Data-Cleaning** repository owns raw-data preparation, cleaning, and validation.
+
+Medical Insight Explorer Agent begins from the validated Parquet outputs and uses them as the input boundary for deterministic downstream analytics.
+
+### Controlled Analytical Path
+
+```text
+User question
+        ↓
+Bilingual Gradio interface
+        ↓
+Language normalization
+        ↓
+Controlled Analytics Planner
+        ↓
+Approved Analytics Tool Registry
+        ↓
+HealthcareAnalyticsEngine
+        ↓
+Deterministic analytical results
+        ↓
+Insight + Response Synthesis
+        ↓
+Primary Visualization
+        ↓
+Gradio output
+```
+
+The planner selects bounded analytical workflows using approved symbolic tool names.
+
+The tool registry constrains controller-facing execution to approved deterministic analytics capabilities.
+
+`HealthcareAnalyticsEngine` performs the numerical pandas-based calculations, while LangGraph coordinates planning, sequential execution, result collection, response synthesis, and chart generation around this controlled flow.
+
+Together, these paths form four primary architectural layers:
+
+```text
+DATA ENGINEERING
+        ↓
+DETERMINISTIC ANALYTICS
+        ↓
+CONTROLLED ORCHESTRATION
+        ↓
+PRESENTATION
+```
+
+The separation keeps data preparation, numerical computation, analytical control, and user-facing presentation as distinct responsibilities.
+
+---
 
 ## Architecture Diagrams
 
-Architecture diagrams are stored under:
+Architecture diagrams are stored in:
 
 ```text
 images/architecture/
 ```
 
-Current diagrams include:
+Current diagrams:
 
 ```text
-images/architecture/data_pipeline_architecture.png
-images/architecture/agent_workflow_architecture.png
+data_pipeline_architecture.png
+agent_workflow_architecture.png
 ```
 
-The data pipeline diagram shows how validated Parquet outputs from the upstream cleaning project flow into the data loader and deterministic analytics engine.
+### Data Pipeline
 
-The agent workflow diagram shows how user questions are guided by language and stakeholder persona context, routed through LangGraph, processed by deterministic analytics tools, interpreted by the analytical insight layer, and returned through the Gradio/Hugging Face interface.
-
-## Repository Relationship
-
-
-
-This project is intentionally connected to the upstream repository:
-
+The data-pipeline diagram represents:
 
 ```text
+Raw CSV data
+        ↓
 Healthcare-Data-Cleaning
+        ↓
+Validated Parquet outputs
+        ↓
+HealthcareDataLoader
+        ↓
+HealthcareAnalyticsEngine
 ```
 
+It documents data provenance and the boundary between upstream data preparation and downstream analytics.
 
-The upstream project is responsible for:
+### Agent Workflow
 
+The agent-workflow diagram represents:
 
+```text
+User question
+        ↓
+Language normalization
+        ↓
+Controlled planner
+        ↓
+Approved tool registry
+        ↓
+Bounded deterministic execution
+        ↓
+Stored analytical results
+        ↓
+Insight + response synthesis
+        ↓
+Primary visualization
+        ↓
+Gradio output
+```
 
-- raw CSV loading
-- cleaning
-- validation
-- feature engineering
-- relationship checks
-- Parquet export
+Detailed graph execution mechanics are documented in
+[LangGraph Orchestration](langgraph_orchestration.md).
 
-
-
-This repository starts from the cleaned Parquet outputs and focuses on:
-
-
-
-- loading validated relational tables
-- computing deterministic healthcare analytics
-- generating Plotly visualizations
-- providing persona-guided analytical workflows
-- adding cautious analytical interpretation
-- explaining computed results
-- exposing the workflow through a bilingual Gradio interface
-- deploying a lightweight sample-data demo on Hugging Face Spaces
-
-
+---
 
 ## Main Components
 
+| Component | File | Responsibility |
+|---|---|---|
+| Data loader | `agent/data_loader.py` | Loads cleaned Parquet tables |
+| Analytics engine | `agent/analytics_engine.py` | Computes deterministic healthcare metrics |
+| Tool registry | `agent/tool_registry.py` | Defines controller-approved analytics capabilities |
+| Analytics planner | `agent/planner.py` | Creates bounded plans using approved tool names |
+| Language utilities | `agent/language_utils.py` | Normalizes supported bilingual analytical questions |
+| Graph workflow | `agent/graph_workflow.py` | Coordinates planning, execution, synthesis, and chart generation |
+| Insight layer | `agent/insight_layer.py` | Adds cautious interpretation to computed results |
+| Response formatter | `agent/response_formatter.py` | Formats single-step and multi-step bilingual responses |
+| Response generator | `agent/response_generator.py` | Provides the standalone controlled response path |
+| Chart router | `agent/chart_router.py` | Selects the primary visualization |
+| Visualization tools | `agent/visualization_tools.py` | Generates Plotly visualizations |
+| Persona layer | `agent/personas.py` | Provides stakeholder-guided analytical prompts |
+| Prompt templates | `agent/prompt_templates.py` | Supports optional controlled LLM explanation |
+| Gradio interface | `app.py` | Provides the interactive application |
 
+Each component has a narrow responsibility so that numerical computation, orchestration, interpretation, and presentation remain separated.
 
-| Component           | File                           | Responsibility                                                        |
-| ------------------- | ------------------------------ | --------------------------------------------------------------------- |
-| Data loader         | `agent/data_loader.py`         | Loads required cleaned Parquet tables                                 |
-| Analytics engine    | `agent/analytics_engine.py`    | Computes deterministic healthcare metrics                             |
-| Visualization tools | `agent/visualization_tools.py` | Generates reusable Plotly chart types                                 |
-| Chart router        | `agent/chart_router.py`        | Builds route-specific Plotly visualizations                           |
-| Language utilities  | `agent/language_utils.py`      | Normalizes supported bilingual prompts                                |
-| Persona layer       | `agent/personas.py`            | Defines stakeholder personas, descriptions, and recommended questions |
-| Insight layer       | `agent/insight_layer.py`       | Adds cautious deterministic analytical interpretation                 |
-| Response formatter  | `agent/response_formatter.py`  | Formats summaries, insights, computed results, and safety notes       |
-| Response layer      | `agent/response_generator.py`  | Provides controlled routing and optional LLM explanation support      |
-| Graph workflow      | `agent/graph_workflow.py`      | Coordinates LangGraph execution workflow                              |
-| Prompt templates    | `agent/prompt_templates.py`    | Defines safe explanation prompts for optional LLM usage               |
-| Gradio app          | `app.py`                       | Provides bilingual interactive user interface                         |
+---
 
+## Data Architecture
 
-
-
-## Data Layer
-
-
-
-The project expects cleaned Parquet files under:
-
+The full local workflow consumes cleaned Parquet files under:
 
 ```text
 data/processed/
 ```
 
+These outputs are generated by the upstream **Healthcare-Data-Cleaning** project.
 
-These full datasets are excluded from GitHub.
+Full processed datasets are excluded from GitHub.
 
-
-
-The expected tables are:
-
-
-
-- train_beneficiary_clean.parquet
-- test_beneficiary_clean.parquet
-- train_inpatient_clean.parquet
-- test_inpatient_clean.parquet
-- train_outpatient_clean.parquet
-- test_outpatient_clean.parquet
-- train_labels_clean.parquet
-- test_labels_clean.parquet
-
-
-
-The app can also fall back to:
-
+For lightweight public deployment, the application can use:
 
 ```text
 data/sample/
 ```
 
+The data layer is independent from:
 
-for future lightweight demo deployment.
+- interface language
+- stakeholder persona
+- analytical planning
+- response formatting
+- visualization
 
+This allows the same analytics architecture to operate over the configured local or sample dataset.
 
+For detailed input expectations, see [Data Contract](data_contract.md).
 
+---
 
-## Analytics Layer
+## Deterministic Analytics Layer
 
+The numerical analytics layer is implemented in:
 
+```text
+agent/analytics_engine.py
+```
 
-The analytics engine computes controlled metrics using pandas.
+It contains predefined pandas-based calculations for areas such as:
 
-Examples include:
+- table structure
+- inpatient and outpatient summaries
+- beneficiary age
+- provider activity
+- claims by state
+- chronic-condition reimbursement comparison
+- reimbursement distribution
 
-- table shape summaries
-- inpatient and outpatient claim summaries
-- beneficiary age statistics
-- top providers by claim count
-- distribution by state
-- reimbursement distribution analysis
-- reimbursement comparison by chronic-condition indicator
+The central computation boundary is:
 
-The key point is that numbers are computed by code, not invented by an LLM.
+```text
+HealthcareAnalyticsEngine
+=
+source of numerical truth
+```
 
+The orchestration and response layers do not invent healthcare statistics.
 
+The analytics engine can contain reusable internal functionality that is not directly available to controller logic.
 
-## Persona Layer
+Approved controller-facing access is defined separately by the tool registry.
 
-The persona layer defines stakeholder-oriented demo workflows.
+For calculation details, see [Analytics Engine](analytics_engine.md).
 
-Current personas include:
+---
+
+## Approved Analytics Capability Layer
+
+Approved controller-facing analytics are defined in:
+
+```text
+agent/tool_registry.py
+```
+
+The registry contains ten approved capabilities:
+
+```text
+table_shapes
+inpatient_summary
+outpatient_summary
+age_summary
+top_inpatient_providers
+top_outpatient_providers
+inpatient_claims_by_state
+outpatient_claims_by_state
+diabetes_cost_summary
+reimbursement_distribution
+```
+
+The registry maps symbolic tool names to controlled deterministic analytics behavior.
+
+It provides a shared capability boundary for the project's execution paths and prevents orchestration code from selecting arbitrary analytics-engine methods.
+
+Conceptually:
+
+```text
+Natural-language intent
+        ↓
+approved symbolic tool
+        ↓
+Tool Registry
+        ↓
+fixed deterministic behavior
+        ↓
+HealthcareAnalyticsEngine
+```
+
+Unknown or unregistered tools are not executed.
+
+---
+
+## Controlled Planning Layer
+
+The planner is implemented in:
+
+```text
+agent/planner.py
+```
+
+Its role is to convert supported normalized questions into plans containing approved symbolic tool names.
+
+Simple questions use one tool when one tool is sufficient.
+
+Supported compound questions can use multiple tools.
+
+Execution is bounded by:
+
+```text
+MAX_ANALYTICS_STEPS = 3
+```
+
+The current release includes controlled compound workflows for:
+
+- inpatient vs outpatient provider activity
+- inpatient vs outpatient claims by state
+- inpatient vs outpatient claim summaries
+
+The planner does not construct arbitrary Python, SQL, pandas expressions, or dataframe operations.
+
+Detailed planning, graph state, execution-loop, and rejection behavior are documented in [LangGraph Orchestration](langgraph_orchestration.md).
+
+---
+
+## LangGraph Orchestration Layer
+
+The deployed Gradio application uses:
+
+```text
+HealthcareGraphWorkflow
+```
+
+implemented in:
+
+```text
+agent/graph_workflow.py
+```
+
+LangGraph coordinates the analytical lifecycle:
+
+```text
+normalize
+        ↓
+plan
+        ↓
+execute approved tools
+        ↓
+store results
+        ↓
+synthesize response
+        ↓
+generate primary chart
+```
+
+For multi-step questions, approved tools execute sequentially and their deterministic results are retained for combined response generation.
+
+The execution loop is bounded by the validated analytical plan.
+
+LangGraph coordinates execution; it does not replace the analytics engine.
+
+The detailed graph state and node behavior belong in [LangGraph Orchestration](langgraph_orchestration.md).
+
+---
+
+## Two Intentional Execution Paths
+
+The project retains two controlled execution paths.
+
+### LangGraph Application Path
+
+`HealthcareGraphWorkflow` supports the deployed application's orchestration lifecycle, including bounded multi-step execution.
+
+```text
+question
+    ↓
+normalization
+    ↓
+planning
+    ↓
+approved analytics
+    ↓
+result synthesis
+    ↓
+visualization
+```
+
+### Standalone Response Path
+
+`ResponseGenerator` remains a separate controlled response component.
+
+It uses the same approved analytics registry and preserves the project's optional LLM explanation architecture after deterministic computation.
+
+The two paths have different responsibilities but share the same controller-facing capability definition.
+
+This avoids maintaining separate definitions of which analytics operations are approved.
+
+---
+
+## Multilingual Architecture
+
+English and German interaction is separated from numerical computation.
+
+```text
+English ─────┐
+             │
+German ──────┤
+             ↓
+     normalization
+             ↓
+         planner
+             ↓
+     approved tools
+             ↓
+ deterministic analytics
+             ↓
+    localized response
+```
+
+Supported German analytical questions normalize into the same language-independent tool representation used by English questions.
+
+Safety-relevant causal intent is preserved during normalization so that unsupported causal requests can be rejected before analytics execution.
+
+The analytics engine therefore does not require separate English and German implementations.
+
+Detailed multilingual planning behavior is documented in [LangGraph Orchestration](langgraph_orchestration.md).
+
+---
+
+## Analytical Interpretation and Response
+
+Deterministic results move through two user-facing analytical components:
+
+```text
+agent/insight_layer.py
+agent/response_formatter.py
+```
+
+The insight layer provides cautious interpretation of already-computed results.
+
+The response formatter converts those results into readable English or German output.
+
+For compound workflows:
+
+```text
+result 1 ──┐
+           │
+result 2 ──┼──→ combined analytical response
+           │
+result 3 ──┘
+```
+
+The response can describe the analytical operations that were actually executed without exposing private reasoning.
+
+The interpretation layer does not independently query data or create unsupported healthcare statistics.
+
+---
+
+## Visualization Architecture
+
+Visualization is separated from analytics computation.
+
+```text
+deterministic result
+        ↓
+Chart Router
+        ↓
+Visualization Tools
+        ↓
+Plotly figure
+```
+
+The chart router selects supported visualization behavior based on the primary analytical route.
+
+Multi-step workflows currently retain **one primary visualization**, while the textual response includes all executed analytical results.
+
+This avoids introducing a separate multi-chart dashboard architecture in v1.2.0.
+
+Detailed chart behavior is documented in [Visualization Tools](visualization_tools.md).
+
+---
+
+## Persona and Interface Layer
+
+The Gradio application is implemented in:
+
+```text
+app.py
+```
+
+The interface supports:
+
+- English/German interaction
+- stakeholder personas
+- persona-guided prompts
+- single-step questions
+- supported multi-step questions
+- analytical responses
+- workflow execution status
+- Plotly visualizations
+
+Current personas are:
 
 - Hospital Operations Analyst
 - Healthcare Fraud Investigator
 - Healthcare Policy Researcher
 
-Each persona provides:
+Personas guide exploration but do not modify:
 
-- a short use-case description
-- recommended analytical questions
-- bilingual English/German support
+```text
+analytics formulas
+tool permissions
+planner limits
+safety boundaries
+```
 
-This layer makes the app purpose clearer for reviewers by connecting supported analytics routes to realistic healthcare stakeholder needs.
+The interface therefore remains a presentation layer over the controlled analytical architecture.
 
+For usage details, see [User Guide](user_guide.md).
 
-## Insight Layer
+---
 
-The insight layer adds deterministic analytical interpretation after computation.
+## Runtime Architecture
 
-It does not create new statistics and does not make clinical claims.
+The project supports two primary runtime contexts.
 
-The goal is to explain why a computed result may matter in a cautious, non-causal, claims-analytics context.
+### Local
 
-Example insight types include:
+```text
+data/processed/
+        ↓
+full cleaned Parquet data
+        ↓
+same analytics/orchestration architecture
+```
 
-- provider concentration interpretation
-- regional utilization interpretation
-- reimbursement distribution interpretation
-- cautious chronic-condition comparison interpretation
+### Hugging Face
 
+```text
+data/sample/
+        ↓
+lightweight sample Parquet data
+        ↓
+same core analytics/orchestration architecture
+```
 
+The primary runtime difference is the configured dataset rather than the analytical control model.
 
-## Visualization Layer
+Deployment-specific instructions belong in [Deployment Guide](deployment.md).
 
-The visualization tools convert analytics results into Plotly charts.
+---
 
-Supported visual types include:
+## Architectural Safety Boundaries
 
-- vertical bar charts
-- horizontal bar charts
-- histograms
-- box plots
-- placeholder charts for text-only analytical questions
-
-Chart selection remains route-based and controlled.
-
-
-
-
-## Response Layer
-
-
-
-The response layer uses rule-based routing coordinated through LangGraph orchestration.
-
-
-
-The workflow is:
-
+Safety is enforced through component boundaries rather than unrestricted model behavior.
 
 ```text
 User question
-       ↓
-Stakeholder persona context
-       ↓
-Normalize question if needed
-       ↓
-Select supported analytics route
-       ↓
-Run deterministic pandas function
-       ↓
-Generate analytical insight
-       ↓
-Format computed result
-       ↓
-Return text response and optional chart
+        ↓
+Language normalization
+        ↓
+Bounded planner
+        ↓
+Approved registry
+        ↓
+Deterministic analytics
+        ↓
+Cautious interpretation
 ```
 
+The system does not provide:
 
-The LLM does not directly manipulate dataframes.
+- medical diagnosis
+- treatment recommendations
+- patient-specific clinical advice
+- fraud determination
+- causal medical conclusions
 
-The current deployed configuration uses deterministic fallback responses.
+The orchestration layer does not permit arbitrary:
 
+- Python execution
+- SQL execution
+- pandas expressions
+- dataframe manipulation
+- analytics-engine method selection
+- unregistered tools
+- open-ended analytical loops
 
-## LangGraph Orchestration Layer
+Unsupported or causal requests can terminate without executing analytics tools.
 
+Detailed scope restrictions are documented in [Limitations](limitations.md).
 
-The LangGraph orchestration layer makes the workflow explicit as a graph.
+---
 
-It organizes the following steps:
+## Architectural Boundaries
+
+The system can be summarized through six primary boundaries:
+
+| Boundary | Responsibility |
+|---|---|
+| **Data** | Upstream cleaning is separated from downstream analytics |
+| **Computation** | `HealthcareAnalyticsEngine` owns numerical results |
+| **Capability** | `tool_registry.py` defines approved controller-facing analytics |
+| **Planning** | `planner.py` selects bounded approved tool sequences |
+| **Orchestration** | LangGraph coordinates execution and result flow |
+| **Presentation** | Insight, formatting, visualization, and Gradio present results |
+
+These boundaries are the core of the project's architecture.
+
+---
+
+## Current Architectural Constraints
+
+The architecture is intentionally bounded:
+
+- compound workflows are explicitly supported rather than open-ended
+- plans are limited to three approved analytics executions
+- multi-step workflows currently render one primary visualization
+- healthcare analysis is descriptive rather than causal
+- the public deployment uses lightweight sample data
+- optional LLM explanation remains separate from deterministic computation
+
+These are design constraints rather than hidden capabilities.
+
+For the complete discussion, see [Limitations](limitations.md).
+
+---
+
+## Documentation Map
+
+Detailed implementation information is intentionally separated from this architecture overview.
+
+| Document | Responsibility |
+|---|---|
+| [LangGraph Orchestration](langgraph_orchestration.md) | Planner, graph state, bounded execution, and multi-result orchestration |
+| [Analytics Engine](analytics_engine.md) | Deterministic analytical calculations |
+| [LLM Response Layer](llm_response_layer.md) | Controlled response and optional LLM explanation architecture |
+| [Visualization Tools](visualization_tools.md) | Plotly chart implementation |
+| [Gradio Interface](gradio_interface.md) | User-interface implementation |
+| [Data Contract](data_contract.md) | Data inputs and schema expectations |
+| [User Guide](user_guide.md) | Application usage |
+| [Limitations](limitations.md) | Scope, safety, and known limitations |
+| [Deployment Guide](deployment.md) | Local and Hugging Face deployment |
+
+---
+
+## Architecture Summary
+
+Medical Insight Explorer Agent uses a layered deterministic-first architecture:
 
 ```text
-normalize_question
-       ↓
-route_question
-       ↓
-run_analytics
-       ↓
-generate_response
-       ↓
-generate_chart
+Validated healthcare data
+        ↓
+Deterministic analytics
+        ↓
+Approved capability registry
+        ↓
+Bounded analytical planning
+        ↓
+LangGraph orchestration
+        ↓
+Stored analytical results
+        ↓
+Interpretation + response synthesis
+        ↓
+Controlled visualization
+        ↓
+Bilingual Gradio interface
 ```
 
-The graph does not replace deterministic analytics.
+The responsibilities remain deliberately separated:
 
-It coordinates the existing safe computation, response-generation and visualization pipeline.
+```text
+Analytics engine → computes
+Registry         → constrains
+Planner          → selects
+LangGraph        → coordinates
+Insight layer    → interprets
+Interface        → presents
+```
 
-
-
-## Bilingual UI Layer
-
-
-
-The Gradio interface supports:
-
-- English personas
-- German personas
-- persona-specific recommended questions
-- clickable persona-specific example questions
-- English/German summaries
-- English/German analytical insights
-- German-safe analytics wording
-- translated method notes
-- translated safety notes
-- translated chart titles
-
-German questions are normalized into supported analytics routes before computation.
-
-
-
-
-
-## Safety and Scope
-
-
-
-The system is designed for claims analytics, not clinical decision-making.
-
-
-
-It does not:
-
-
-
-- diagnose patients
-- recommend treatment
-- predict individual medical outcomes
-- provide clinical advice
-- claim causal relationships without evidence
-
-
-
-
-
-## Future Architecture Improvements
-
-
-
-Possible future improvements include:
-
-
-
-- LangSmith tracing
-- conditional graph routing
-- expanded multilingual support
-- expanded analytics tools
-- automated test suite
-- optional database-backed query layer
-
+This structure provides controlled multi-step analytical behavior without giving the orchestration layer unrestricted access to healthcare data or arbitrary computation.
